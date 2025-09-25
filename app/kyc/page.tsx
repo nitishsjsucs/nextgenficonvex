@@ -1,0 +1,263 @@
+"use client";
+
+import { useEffect, useState, useRef } from 'react';
+import { useSession } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { FileUploader } from '@/components/kyc/file-uploader';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RedirectToSignIn, SignedIn } from "@daveyplate/better-auth-ui";
+import { Loader2, CheckCircle, Mail, AlertTriangle } from 'lucide-react';
+
+export default function KycPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [files, setFiles] = useState<{ [key: string]: File | null }>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [kycVerified, setKycVerified] = useState<boolean | null>(null);
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const kycFetched = useRef(false);
+  const emailFetched = useRef(false);
+  const loading = typeof session === 'undefined' || kycVerified === null || emailVerified === null;
+  const shouldRedirect = Boolean(session?.user && kycVerified === true);
+
+  // Fetch KYC status from database
+  useEffect(() => {
+    if (session?.user?.id && !kycFetched.current) {
+      kycFetched.current = true;
+      console.log('Fetching KYC status for user:', session.user.id);
+      fetch('/api/user/kyc-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: session.user.id }),
+      })
+        .then(res => {
+          console.log('KYC status response:', res.status, res.statusText);
+          return res.json();
+        })
+        .then(result => {
+          console.log('KYC status result:', result);
+          setKycVerified(result.kycVerified || false);
+        })
+        .catch((error) => {
+          console.error('KYC status fetch error:', error);
+          setKycVerified(false);
+        });
+    }
+  }, [session?.user?.id]);
+
+  // Fetch email verification status from database
+  useEffect(() => {
+    if (session?.user?.id && !emailFetched.current) {
+      emailFetched.current = true;
+      console.log('Fetching email status for user:', session.user.id);
+      fetch('/api/user/email-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: session.user.id }),
+      })
+        .then(res => {
+          console.log('Email status response:', res.status, res.statusText);
+          return res.json();
+        })
+        .then(result => {
+          console.log('Email status result:', result);
+          setEmailVerified(result.emailVerified || false);
+        })
+        .catch((error) => {
+          console.error('Email status fetch error:', error);
+          setEmailVerified(false);
+        });
+    }
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.replace('/dashboard');
+    }
+  }, [shouldRedirect, router]);
+
+  // Countdown effect for successful verification
+  useEffect(() => {
+    if (countdown !== null && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      router.push('/dashboard');
+    }
+  }, [countdown, router]);
+
+  // Debug logging
+  console.log('KYC Page Debug:', {
+    session: !!session,
+    userId: session?.user?.id,
+    kycVerified,
+    emailVerified,
+    loading,
+    shouldRedirect
+  });
+
+  // Prevent UI flash while loading or when redirecting
+  if (loading || shouldRedirect) {
+    return (
+      <div className="container mx-auto flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin mb-4" />
+          <p className="text-muted-foreground">
+            {loading ? 'Loading your verification status...' : 'Redirecting to dashboard...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleFileChange = (newFiles: { [key: string]: File | null }) => {
+    setFiles(newFiles);
+    setError(null);
+    setVerificationStatus(null);
+  };
+
+  const handleVerification = async () => {
+    const uploadedFiles = Object.values(files).filter(Boolean) as File[];
+    
+    if (uploadedFiles.length === 0) {
+      setError("Please upload your government-issued ID.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setVerificationStatus('Processing...');
+
+    try {
+      // 1. Upload the files to get URLs
+      const uploadedFileUrls: { [key: string]: string } = {};
+      for (const docId in files) {
+        const file = files[docId];
+        if (file) {
+          const response = await fetch(
+            `/api/upload?filename=${file.name}`,
+            {
+              method: 'POST',
+              body: file,
+            },
+          );
+          const newBlob = await response.json();
+          if (!response.ok) {
+            throw new Error(newBlob.error || 'File upload failed.');
+          }
+          uploadedFileUrls[docId] = newBlob.url;
+        }
+      }
+
+      // 2. Call the KYC verification API with the first uploaded file
+      const firstFileUrl = Object.values(uploadedFileUrls)[0];
+      const verifyResponse = await fetch('/api/kyc/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileUrl: firstFileUrl }),
+      });
+
+      const result = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(result.message || "Verification process failed.");
+      }
+
+      setIsSuccess(true);
+      setVerificationStatus('Verification successful!');
+      setCountdown(3);
+
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+      setVerificationStatus(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const hasFiles = Object.values(files).some(Boolean);
+
+  return (
+    <div>
+      <RedirectToSignIn />
+      <SignedIn>
+        <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
+          <Card className="w-full max-w-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Verify Your Identity</CardTitle>
+              <CardDescription>
+                Please upload a government-issued ID to complete our KYC (Know Your Customer) process.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {!emailVerified && (
+                <Alert className="border-orange-500 bg-orange-50">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    <AlertTitle className="text-orange-800">Email Verification Required</AlertTitle>
+                  </div>
+                  <AlertDescription className="text-orange-700">
+                    <div className="flex items-center gap-2 mt-2">
+                      <Mail className="h-4 w-4" />
+                      <span>Please check your inbox and verify your email address before proceeding with KYC verification.</span>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              {verificationStatus && !error && (
+                 <Alert className={isSuccess ? "border-green-500 bg-green-50" : ""}>
+                   <div className="flex items-center gap-2">
+                     {isSuccess && <CheckCircle className="h-5 w-5 text-green-600" />}
+                     <AlertTitle>{isSuccess ? "Success!" : "Status"}</AlertTitle>
+                   </div>
+                   <AlertDescription>
+                     {verificationStatus}
+                     {countdown !== null && (
+                       <div className="mt-2 font-semibold">
+                         You are being redirected in {countdown} second{countdown !== 1 ? 's' : ''}...
+                       </div>
+                     )}
+                   </AlertDescription>
+                 </Alert>
+              )}
+              <div className="space-y-2">
+                <p className="font-medium">Welcome, {session?.user?.name || 'User'}.</p>
+                <p className="text-sm text-muted-foreground">
+                  To continue, we need to verify your identity against your provided login details.
+                </p>
+              </div>
+              
+              <FileUploader files={files} onFilesChange={handleFileChange} disabled={isLoading || !emailVerified} />
+              
+              <Button onClick={handleVerification} disabled={isLoading || !hasFiles || !emailVerified} className="w-full" size="lg">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  'Verify Identity'
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </SignedIn>
+    </div>
+  );
+}
