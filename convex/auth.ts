@@ -22,6 +22,12 @@ export const createAuth = (
       disabled: optionsOnly,
     },
     secret: process.env.BETTER_AUTH_SECRET!,
+    // Allow both local dev and production origins
+    trustedOrigins: [
+      process.env.SITE_URL,
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+    ].filter(Boolean) as string[],
     baseURL: siteUrl,
     database: authComponent.adapter(ctx),
     // Configure simple, non-verified email/password to get started
@@ -29,23 +35,17 @@ export const createAuth = (
       enabled: true,
       requireEmailVerification: false,
     },
-    // Email configuration (optional - for future email verification)
-    email: {
-      server: {
-        host: "smtp.gmail.com",
-        port: 587,
-        user: process.env.EMAIL_USER,
-        password: process.env.EMAIL_PASSWORD,
-      },
-      from: process.env.EMAIL_FROM || "noreply@nextgenficonvex.vercel.app",
-    },
-    socialProviders: {
-      google: {
-        clientId: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      },
-    },
+    // Disable social providers for now since they're not configured
+    // socialProviders: {
+    //   google: {
+    //     clientId: process.env.GOOGLE_CLIENT_ID || "",
+    //     clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    //   },
+    // },
     user: {
+      deleteUser: { 
+        enabled: true
+      },
       additionalFields: {
         phoneNumber: {
           type: "string",
