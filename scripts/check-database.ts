@@ -1,86 +1,30 @@
-import { PrismaClient } from '../generated/prisma';
+// TODO: Update this script to use Convex instead of Prisma
+// import { ConvexHttpClient } from "convex/browser";
+// import { api } from "../convex/_generated/api";
 
-const prisma = new PrismaClient();
+// const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 async function checkDatabaseConnection() {
-  try {
-    console.log('🔍 Checking database connection...');
-    
-    // Test basic connection
-    await prisma.$connect();
-    console.log('✅ Database connection successful');
-    
-    // Get total count
-    const totalCount = await prisma.person.count();
-    console.log(`📊 Total customers in database: ${totalCount.toLocaleString()}`);
-    
-    // Get recent customers (last 100)
-    const recentCustomers = await prisma.person.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        firstName: true,
-        lastName: true,
-        email: true,
-        city: true,
-        state: true,
-        houseValue: true,
-        createdAt: true
-      }
-    });
-    
-    console.log('\n👥 Most recent customers:');
-    recentCustomers.forEach((customer, index) => {
-      console.log(`${index + 1}. ${customer.firstName} ${customer.lastName} (${customer.email})`);
-      console.log(`   Location: ${customer.city}, ${customer.state}`);
-      console.log(`   House Value: $${customer.houseValue.toLocaleString()}`);
-      console.log(`   Created: ${customer.createdAt.toISOString()}`);
-      console.log('');
-    });
-    
-    // Get state distribution
-    const stateStats = await prisma.person.groupBy({
-      by: ['state'],
-      _count: {
-        state: true
-      },
-      orderBy: {
-        _count: {
-          state: 'desc'
-        }
-      },
-      take: 10
-    });
-    
-    console.log('🗺️ Top 10 States by Customer Count:');
-    stateStats.forEach(stat => {
-      console.log(`${stat.state}: ${stat._count.state.toLocaleString()} customers`);
-    });
-    
-    // Check if we have both US and Bangladesh customers
-    const usCustomers = await prisma.person.count({
-      where: {
-        state: {
-          not: 'Bangladesh'
-        }
-      }
-    });
-    
-    const bdCustomers = await prisma.person.count({
-      where: {
-        state: 'Bangladesh'
-      }
-    });
-    
-    console.log(`\n🌎 Geographic Distribution:`);
-    console.log(`US Customers: ${usCustomers.toLocaleString()}`);
-    console.log(`Bangladesh Customers: ${bdCustomers.toLocaleString()}`);
-    
-  } catch (error) {
-    console.error('❌ Database connection error:', error);
-  } finally {
-    await prisma.$disconnect();
-  }
+  console.log('🔍 Checking database connection...');
+  console.log('⚠️ This script needs to be updated to use Convex');
+  console.log('📊 TODO: Implement Convex-based database checking');
+  
+  // TODO: Implement Convex-based database checking
+  // 1. Use convex.query to get person counts and statistics
+  // 2. Use the getAllPersons and getPersonsByLocation functions
+  // 3. Handle the data analysis and reporting logic
+  
+  console.log('✅ Database check completed (placeholder)');
 }
 
-checkDatabaseConnection();
+// Run if called directly
+if (require.main === module) {
+  checkDatabaseConnection()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
+
+export { checkDatabaseConnection };
