@@ -1,6 +1,8 @@
-import { PrismaClient } from '@/generated/prisma';
+// TODO: Update this script to use Convex instead of Prisma
+// import { ConvexHttpClient } from "convex/browser";
+// import { api } from "../convex/_generated/api";
 
-const prisma = new PrismaClient();
+// const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 // Helper functions for generating realistic data
 const firstNames = [
@@ -331,12 +333,21 @@ function scoutDataToPerson(scoutData: any, scoutDataId: string, index: number): 
 
 export async function seedScoutData(count: number = 5000) {
   console.log(`🌱 Seeding ${count} Scout data records...`);
+  console.log('⚠️ This function needs to be updated to use Convex');
+  console.log('📊 TODO: Implement Convex-based Scout data seeding');
+  
+  // TODO: Implement Convex-based seeding
+  // 1. Use convex.mutation to create persons and scout data
+  // 2. Use the upsertPerson and upsertScoutData functions
+  // 3. Handle the data generation and insertion logic
+  
+  return;
   
   try {
-    // Clear existing data
-    await prisma.campaign.deleteMany();
-    await prisma.person.deleteMany();
-    await prisma.scoutData.deleteMany();
+    // Clear existing data - DISABLED (Prisma removed)
+    // await prisma.campaign.deleteMany();
+    // await prisma.person.deleteMany();
+    // await prisma.scoutData.deleteMany();
     
     console.log('🗑️  Cleared existing data');
     
@@ -361,17 +372,18 @@ export async function seedScoutData(count: number = 5000) {
     
     for (let i = 0; i < scoutDataRecords.length; i += batchSize) {
       const batch = scoutDataRecords.slice(i, i + batchSize);
-      const created = await prisma.scoutData.createMany({
-        data: batch,
-      });
+      // const created = await prisma.scoutData.createMany({
+      //   data: batch,
+      // });
       console.log(`📥 Inserted batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(scoutDataRecords.length / batchSize)}`);
     }
     
     // Get created Scout data to link to Person records
-    const allScoutData = await prisma.scoutData.findMany({
-      select: { id: true, fname: true, lname: true, city: true, state: true, 
-               latitude: true, longitude: true, mrkthomeval: true }
-    });
+    // const allScoutData = await prisma.scoutData.findMany({
+    //   select: { id: true, fname: true, lname: true, city: true, state: true, 
+    //            latitude: true, longitude: true, mrkthomeval: true }
+    // });
+    const allScoutData = []; // Placeholder - needs Convex implementation
     
     // Generate Person records linked to Scout data
     console.log('👥 Creating Person records...');
@@ -384,9 +396,9 @@ export async function seedScoutData(count: number = 5000) {
     // Insert Person records in batches
     for (let i = 0; i < personRecords.length; i += batchSize) {
       const batch = personRecords.slice(i, i + batchSize);
-      await prisma.person.createMany({
-        data: batch,
-      });
+      // await prisma.person.createMany({
+      //   data: batch,
+      // });
       console.log(`👤 Inserted Person batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(personRecords.length / batchSize)}`);
     }
     
@@ -396,12 +408,13 @@ export async function seedScoutData(count: number = 5000) {
     console.log(`   🎯 Ready for earthquake insurance RAG targeting!`);
     
     // Print some sample statistics
-    const stats = await prisma.scoutData.groupBy({
-      by: ['city'],
-      _count: { city: true },
-      orderBy: { _count: { city: 'desc' } },
-      take: 5
-    });
+    // const stats = await prisma.scoutData.groupBy({
+    //   by: ['city'],
+    //   _count: { city: true },
+    //   orderBy: { _count: { city: 'desc' } },
+    //   take: 5
+    // });
+    const stats = []; // Placeholder - needs Convex implementation
     
     console.log('\n📈 Top 5 cities by record count:');
     stats.forEach(stat => {
@@ -412,7 +425,7 @@ export async function seedScoutData(count: number = 5000) {
     console.error('❌ Error seeding data:', error);
     throw error;
   } finally {
-    await prisma.$disconnect();
+    // await prisma.$disconnect();
   }
 }
 
