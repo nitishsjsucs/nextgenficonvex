@@ -1,60 +1,85 @@
-// Better Auth + Convex integration
-// This file will be replaced by the proper component setup
-// For now, we'll use a simple approach to get the build working
-
+import { createClient, type GenericCtx } from "@convex-dev/better-auth";
+import { convex } from "@convex-dev/better-auth/plugins";
+import { components } from "./_generated/api";
+import { DataModel } from "./_generated/dataModel";
+import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
-import { convexAdapter } from "@convex-dev/better-auth";
 
-export const auth = betterAuth({
-  database: convexAdapter({} as any, {} as any),
-  baseURL: process.env.NEXTAUTH_URL || "https://nextgenficonvex.vercel.app",
-  trustedOrigins: [
-    "https://nextgenficonvex.vercel.app",
-    "http://localhost:3000",
-    "https://nextgenfibank.vercel.app"
-  ],
-  emailAndPassword: {
-    enabled: true,
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+const siteUrl = process.env.SITE_URL || "https://nextgenficonvex.vercel.app";
+
+// The component client has methods needed for integrating Convex with Better Auth,
+// as well as helper methods for general use.
+export const authComponent = createClient<DataModel>(components.betterAuth);
+
+export const createAuth = (
+  ctx: GenericCtx<DataModel>,
+  { optionsOnly } = { optionsOnly: false },
+) => {
+  return betterAuth({
+    // disable logging when createAuth is called just to generate options.
+    // this is not required, but there's a lot of noise in logs without it.
+    logger: {
+      disabled: optionsOnly,
     },
-  },
-  user: {
-    additionalFields: {
-      phoneNumber: {
-        type: "string",
-        required: true,
-        input: true,
-        returned: true,
-      },
-      dateOfBirth: {
-        type: "string",
-        required: true,
-        input: true,
-        returned: true,
-      },
-      ssn: {
-        type: "string",
-        required: true,
-        input: true,
-        returned: true,
-      },
-      kycVerified: {
-        type: "boolean",
-        required: false,
-        input: true,
-        returned: true,
+    baseURL: siteUrl,
+    database: authComponent.adapter(ctx),
+    // Configure simple, non-verified email/password to get started
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: false,
+    },
+    socialProviders: {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       },
     },
+    user: {
+      additionalFields: {
+        phoneNumber: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        dateOfBirth: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        ssn: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        kycVerified: {
+          type: "boolean",
+          required: false,
+          input: true,
+          returned: true,
+        },
+      },
+    },
+    plugins: [
+      // The Convex plugin is required for Convex compatibility
+      convex(),
+    ],
+  });
+};
+
+// Example function for getting the current user
+// Feel free to edit, omit, etc.
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    return authComponent.getAuthUser(ctx);
   },
 });
 
-// Export the auth functions
-// Note: Better Auth functions are accessed differently
-// These exports are for backward compatibility
-export const signIn = auth.api.signInEmail;
-export const signOut = auth.api.signOut;
-export const store = auth;
+// Export the auth functions for backward compatibility
+export const auth = createAuth;
+export const signIn = authComponent;
+export const signOut = authComponent;
+export const store = authComponent;
