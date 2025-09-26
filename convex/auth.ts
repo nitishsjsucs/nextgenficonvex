@@ -21,12 +21,23 @@ export const createAuth = (
     logger: {
       disabled: optionsOnly,
     },
+    secret: process.env.BETTER_AUTH_SECRET!,
     baseURL: siteUrl,
     database: authComponent.adapter(ctx),
     // Configure simple, non-verified email/password to get started
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false,
+    },
+    // Email configuration (optional - for future email verification)
+    email: {
+      server: {
+        host: "smtp.gmail.com",
+        port: 587,
+        user: process.env.EMAIL_USER,
+        password: process.env.EMAIL_PASSWORD,
+      },
+      from: process.env.EMAIL_FROM || "noreply@nextgenficonvex.vercel.app",
     },
     socialProviders: {
       google: {

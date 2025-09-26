@@ -93,24 +93,14 @@ async function extractInfoFromDocument(fileUrl: string): Promise<any> {
 }
 
 export async function POST(req: NextRequest) {
-  // TODO: Implement proper session handling after Better Auth component deployment
-  // const session = await auth.api.getSession({
-  //   headers: req.headers,
-  // });
+  try {
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
 
-  // if (!session?.user) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
-
-  // Temporary: Allow all requests for now
-  const session = { 
-    user: { 
-      id: "temp-user",
-      name: "Test User",
-      dateOfBirth: "1990-01-01",
-      email: "test@example.com"
-    } 
-  };
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
   const { fileUrl } = await req.json();
 
@@ -136,13 +126,12 @@ export async function POST(req: NextRequest) {
     if (nameMatches && dobMatches) {
       // Update KYC status using better-auth
       try {
-        // TODO: Implement proper user update after Better Auth component deployment
-        // await auth.api.updateUser({
-        //   body: {
-        //     kycVerified: true,
-        //   },
-        // });
-        console.log("KYC verification completed (temporary implementation)");
+        await auth.api.updateUser({
+          body: {
+            kycVerified: true,
+          },
+        });
+        console.log("KYC verification completed successfully");
       } catch (dbErr) {
         console.error("Failed to update kycVerified:", dbErr);
         // continue to return success; UI can reflect success even if write fails
