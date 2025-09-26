@@ -7,6 +7,12 @@ import { convexAdapter } from "@convex-dev/better-auth";
 
 export const auth = betterAuth({
   database: convexAdapter({} as any, {} as any),
+  baseURL: process.env.NEXTAUTH_URL || "https://nextgenficonvex.vercel.app",
+  trustedOrigins: [
+    "https://nextgenficonvex.vercel.app",
+    "http://localhost:3000",
+    "https://nextgenfibank.vercel.app"
+  ],
   emailAndPassword: {
     enabled: true,
   },

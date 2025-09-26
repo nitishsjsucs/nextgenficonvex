@@ -146,7 +146,7 @@ export async function GET() {
       type: 'click',
       email: 'user@example.com',
       timestamp: '2024-01-15T10:30:00Z',
-      url: 'https://nextgenfibank.vercel.app/dashboard',
+      url: 'https://nextgenficonvex.vercel.app/dashboard',
       campaignId: 'earthquake-campaign-2024',
       userId: 'user-123',
       sgMessageId: 'abc123def456',

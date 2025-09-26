@@ -25,13 +25,13 @@ export async function POST(request: NextRequest) {
           <p>This is a test email to verify that click and open tracking works properly.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://nextgenfibank.vercel.app/dashboard" 
+            <a href="https://nextgenficonvex.vercel.app/dashboard" 
                style="background: #007bff; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
               Visit Dashboard (Click to Test)
             </a>
           </div>
           
-          <p>You can also visit our <a href="https://nextgenfibank.vercel.app" style="color: #007bff;">homepage</a> or check out our <a href="https://nextgenfibank.vercel.app/kyc" style="color: #007bff;">KYC verification</a>.</p>
+          <p>You can also visit our <a href="https://nextgenficonvex.vercel.app" style="color: #007bff;">homepage</a> or check out our <a href="https://nextgenficonvex.vercel.app/kyc" style="color: #007bff;">KYC verification</a>.</p>
           
           <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
             <p><strong>Testing Instructions:</strong></p>

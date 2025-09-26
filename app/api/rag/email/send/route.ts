@@ -78,12 +78,12 @@ function createEmailHTML(body: string, target: any): string {
       <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
         <p>This email was sent as part of an earthquake insurance awareness campaign.</p>
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://nextgenfibank.vercel.app/insurance-quote" 
+          <a href="https://nextgenficonvex.vercel.app/insurance-quote" 
              style="background: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">
             Get Your Quote Now
           </a>
         </div>
-        <p>If you no longer wish to receive these emails, please <a href="https://nextgenfibank.vercel.app/unsubscribe" style="color: #666;">unsubscribe here</a>.</p>
+        <p>If you no longer wish to receive these emails, please <a href="https://nextgenficonvex.vercel.app/unsubscribe" style="color: #666;">unsubscribe here</a>.</p>
       </div>
     </div>
   `;
