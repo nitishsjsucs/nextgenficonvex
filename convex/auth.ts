@@ -32,9 +32,6 @@ export const createAuth = (
   console.log("[BetterAuth:createAuth] Adapter created:", {
     adapterType: typeof adapter,
     adapterKeys: Object.keys(adapter),
-    hasCreateUser: typeof adapter.createUser,
-    hasCreateSession: typeof adapter.createSession,
-    hasCreateAccount: typeof adapter.createAccount,
   });
 
   return betterAuth({
