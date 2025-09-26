@@ -89,6 +89,33 @@ export const createAuth = (
           requestUrl: request?.url,
           requestMethod: request?.method,
         });
+        
+        // Try to manually create user in database to test if adapter works
+        try {
+          const adapter = authComponent.adapter(ctx);
+          const dbAdapter = adapter({});
+          console.log("[BetterAuth:onSignUp] Testing manual user creation...");
+          
+          // This should create a user record
+          const result = await dbAdapter.create("user", {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            emailVerified: false,
+            image: user.image || null,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            phoneNumber: null,
+            dateOfBirth: null,
+            ssn: null,
+            kycVerified: false,
+          });
+          
+          console.log("[BetterAuth:onSignUp] Manual user creation result:", result);
+        } catch (error) {
+          console.error("[BetterAuth:onSignUp] Manual user creation failed:", error);
+        }
+        
         return user;
       },
       onSignIn: async (user: any, request: any) => {
