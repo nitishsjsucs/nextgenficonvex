@@ -1,5 +1,5 @@
 
-import { auth } from "@/lib/auth";
+import { getSession, updateUser } from "@/lib/auth-server-client";
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -94,7 +94,7 @@ async function extractInfoFromDocument(fileUrl: string): Promise<any> {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
+    const session = await getSession({
       headers: req.headers,
     });
 
@@ -102,64 +102,71 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-  const { fileUrl } = await req.json();
+    const { fileUrl } = await req.json();
 
-  if (!fileUrl) {
-    return NextResponse.json({ error: "File URL is required" }, { status: 400 });
-  }
+    if (!fileUrl) {
+      return NextResponse.json({ error: "File URL is required" }, { status: 400 });
+    }
 
-  try {
-    const extractedData = await extractInfoFromDocument(fileUrl);
-    // Get user data from session (better-auth handles this)
-    const user = session.user;
+    try {
+      const extractedData = await extractInfoFromDocument(fileUrl);
+      // Get user data from session (better-auth handles this)
+      const user = session.user;
 
-    // Name match (case-insensitive, collapsed whitespace)
-    const nameOnDoc = normalizeName(extractedData.fullName);
-    const nameOnAccount = normalizeName(session.user.name ?? user?.name ?? "");
-    const nameMatches = nameOnDoc && nameOnDoc === nameOnAccount;
+      // Name match (case-insensitive, collapsed whitespace)
+      const nameOnDoc = normalizeName(extractedData.fullName);
+      const nameOnAccount = normalizeName(session.user.name ?? user?.name ?? "");
+      const nameMatches = nameOnDoc && nameOnDoc === nameOnAccount;
 
-    // Date of birth match (YYYY-MM-DD)
-    const dobOnDoc = normalizeDob(extractedData.dateOfBirth);
-    const dobOnAccount = normalizeDob(user?.dateOfBirth ?? (session.user as any)?.dateOfBirth);
-    const dobMatches = Boolean(dobOnDoc && dobOnAccount && dobOnDoc === dobOnAccount);
+      // Date of birth match (YYYY-MM-DD)
+      const dobOnDoc = normalizeDob(extractedData.dateOfBirth);
+      const dobOnAccount = normalizeDob(user?.dateOfBirth ?? (session.user as any)?.dateOfBirth);
+      const dobMatches = Boolean(dobOnDoc && dobOnAccount && dobOnDoc === dobOnAccount);
 
-    if (nameMatches && dobMatches) {
-      // Update KYC status using better-auth
-      try {
-        await auth.api.updateUser({
-          body: {
-            kycVerified: true,
-          },
-        });
-        console.log("KYC verification completed successfully");
-      } catch (dbErr) {
-        console.error("Failed to update kycVerified:", dbErr);
-        // continue to return success; UI can reflect success even if write fails
-      }
-      return NextResponse.json({ success: true, message: "KYC successful" });
-    } else {
-      if (!nameMatches) {
+      if (nameMatches && dobMatches) {
+        // Update KYC status using better-auth
+        try {
+          await updateUser({
+            body: {
+              kycVerified: true,
+            },
+          });
+          console.log("KYC verification completed successfully");
+        } catch (dbErr) {
+          console.error("Failed to update kycVerified:", dbErr);
+          // continue to return success; UI can reflect success even if write fails
+        }
+        return NextResponse.json({ success: true, message: "KYC successful" });
+      } else {
+        if (!nameMatches) {
+          return NextResponse.json({
+            success: false,
+            message: "Verification failed. Name on document does not match your account.",
+          }, { status: 400 });
+        }
+        if (!dobOnAccount) {
+          return NextResponse.json({
+            success: false,
+            message: "Verification failed. Your account does not have a date of birth on file.",
+          }, { status: 400 });
+        }
+        if (!dobMatches) {
+          return NextResponse.json({
+            success: false,
+            message: "Verification failed. Date of birth on document does not match your account.",
+          }, { status: 400 });
+        }
         return NextResponse.json({
           success: false,
-          message: "Verification failed. Name on document does not match your account.",
+          message: "Verification failed. Name on document does not match.",
         }, { status: 400 });
       }
-      if (!dobOnAccount) {
-        return NextResponse.json({
-          success: false,
-          message: "Verification failed. Your account does not have a date of birth on file.",
-        }, { status: 400 });
-      }
-      if (!dobMatches) {
-        return NextResponse.json({
-          success: false,
-          message: "Verification failed. Date of birth on document does not match your account.",
-        }, { status: 400 });
-      }
-      return NextResponse.json({
-        success: false,
-        message: "Verification failed. Name on document does not match.",
-      }, { status: 400 });
+    } catch (error) {
+      console.error("KYC verification error:", error);
+      return NextResponse.json(
+        { success: false, message: "An error occurred during verification." },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("KYC verification error:", error);
