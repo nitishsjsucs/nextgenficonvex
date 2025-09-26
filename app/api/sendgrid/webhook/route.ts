@@ -87,14 +87,15 @@ export async function POST(request: NextRequest) {
         const emailEventId = `email_event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         const emailEvent = await convex.mutation(api.campaigns.createEmailEvent, {
-          id: emailEventId,
-          type: event.event,
-          email: event.email,
-          url: event.url || undefined,
+          campaignId: campaignId || 'unknown',
+          personId: userId || 'unknown',
+          eventType: event.event,
           timestamp: event.timestamp * 1000, // Convert Unix timestamp to milliseconds
-          sgMessageId: event.sg_message_id || undefined,
-          userId: userId || undefined,
-          campaignId: campaignId || undefined,
+          metadata: {
+            email: event.email,
+            url: event.url,
+            sgMessageId: event.sg_message_id,
+          },
         });
 
         processedEvents.push({

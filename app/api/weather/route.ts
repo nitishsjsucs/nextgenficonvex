@@ -153,18 +153,12 @@ async function storeWeatherEventsInDatabase(weatherEvents: WeatherData[]): Promi
         id: event.id,
         eventType: event.eventType,
         severity: event.severity,
-        location: event.location,
-        latitude: event.latitude || undefined,
-        longitude: event.longitude || undefined,
-        startTime: event.startTime,
-        endTime: event.endTime || undefined,
+        affectedArea: event.location,
+        latitude: event.latitude || 0,
+        longitude: event.longitude || 0,
+        startTime: typeof event.startTime === 'string' ? new Date(event.startTime).getTime() : event.startTime,
+        endTime: event.endTime ? (typeof event.endTime === 'string' ? new Date(event.endTime).getTime() : event.endTime) : undefined,
         description: event.description || undefined,
-        rainfall: event.rainfall || undefined,
-        windSpeed: event.windSpeed || undefined,
-        temperature: event.temperature || undefined,
-        humidity: event.humidity || undefined,
-        source: event.source || undefined,
-        sourceUrl: event.sourceUrl || undefined,
       })
     );
 

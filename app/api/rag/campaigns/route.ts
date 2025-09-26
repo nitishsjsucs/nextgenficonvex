@@ -29,13 +29,12 @@ export async function POST(request: NextRequest) {
     
     // Save campaign to Convex database
     const campaign = await convex.mutation(api.campaigns.createCampaign, {
-      id: campaignId,
       personId: body.personId,
       earthquakeId: body.earthquakeId,
       subject: body.subject,
-      body: body.body,
+      content: body.body,
       riskLevel: body.riskLevel,
-      distanceKm: body.distanceKm,
+      targetCount: 0, // Will be updated later
     });
 
     return NextResponse.json({
@@ -79,11 +78,11 @@ export async function GET(request: NextRequest) {
         }
 
         return {
-          id: campaign.id,
+          id: campaign._id,
           subject: campaign.subject,
-          body: campaign.body,
+          body: campaign.content,
           riskLevel: campaign.riskLevel,
-          distanceKm: campaign.distanceKm,
+          distanceKm: 0, // Not stored in current schema
           createdAt: campaign.createdAt,
           earthquake: earthquake ? {
             id: earthquake.id,

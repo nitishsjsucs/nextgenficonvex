@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
       place: eq.place,
       depth_km: eq.depth,
       url: eq.url,
-      createdAt: eq.createdAt,
-      updatedAt: eq.updatedAt
+      createdAt: eq._creationTime,
+      updatedAt: eq._creationTime
     }));
     
     return NextResponse.json({

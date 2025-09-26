@@ -101,10 +101,9 @@ export async function POST(request: NextRequest) {
 
     // Get people in the area from Convex
     const people = await convex.query(api.scoutData.getPersonsByLocation, {
-      minLat: earthquake.latitude - (maxDistance / 111),
-      maxLat: earthquake.latitude + (maxDistance / 111),
-      minLng: earthquake.longitude - (maxDistance / 111),
-      maxLng: earthquake.longitude + (maxDistance / 111),
+      latitude: earthquake.latitude || 0,
+      longitude: earthquake.longitude || 0,
+      radius: maxDistance,
       limit: limit * 2
     });
 
@@ -151,10 +150,10 @@ export async function POST(request: NextRequest) {
             time: earthquake.time ? Number(earthquake.time) : null,
             latitude: earthquake.latitude,
             longitude: earthquake.longitude,
-            mag: earthquake.magnitude,
-            place: earthquake.place,
-            depth_km: earthquake.depth,
-            url: earthquake.url
+            mag: earthquake.magnitude || null,
+            place: earthquake.place || null,
+            depth_km: earthquake.depth || null,
+            url: earthquake.url || null
           },
           distance_km: Math.round(distance * 10) / 10, // Round to 1 decimal
           risk_level: riskLevel

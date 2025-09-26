@@ -134,8 +134,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the weather event
-    const weatherEvent = await prisma.weatherEvent.findUnique({
-      where: { id: weatherEventId }
+    const weatherEvent = await convex.query(api.weatherEvents.getWeatherEventById, {
+      id: weatherEventId
     });
 
     if (!weatherEvent) {
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🎯 Finding weather insurance targets for ${weatherEvent.eventType} in ${weatherEvent.location}`);
+    console.log(`🎯 Finding weather insurance targets for ${weatherEvent.eventType} in ${weatherEvent.affectedArea || 'unknown location'}`);
 
     // Build where conditions for Person model
     const whereConditions: any = {
@@ -176,10 +176,9 @@ export async function POST(request: NextRequest) {
 
     // Get people in the area from Convex
     const people = await convex.query(api.scoutData.getPersonsByLocation, {
-      minLat: weatherEvent.latitude - (maxDistance / 111),
-      maxLat: weatherEvent.latitude + (maxDistance / 111),
-      minLng: weatherEvent.longitude - (maxDistance / 111),
-      maxLng: weatherEvent.longitude + (maxDistance / 111),
+      latitude: weatherEvent.latitude,
+      longitude: weatherEvent.longitude,
+      radius: maxDistance,
       limit: limit * 2
     });
 
@@ -239,16 +238,16 @@ export async function POST(request: NextRequest) {
           id: weatherEvent.id,
           eventType: weatherEvent.eventType,
           severity: weatherEvent.severity,
-          location: weatherEvent.location,
+          location: weatherEvent.affectedArea || 'Unknown',
           latitude: weatherEvent.latitude,
           longitude: weatherEvent.longitude,
-          startTime: weatherEvent.startTime.toISOString(),
-          endTime: weatherEvent.endTime?.toISOString() || null,
-          description: weatherEvent.description,
-          rainfall: weatherEvent.rainfall,
-          windSpeed: weatherEvent.windSpeed,
-          temperature: weatherEvent.temperature,
-          humidity: weatherEvent.humidity
+          startTime: new Date(weatherEvent.startTime).toISOString(),
+          endTime: weatherEvent.endTime ? new Date(weatherEvent.endTime).toISOString() : null,
+          description: weatherEvent.description || null,
+          rainfall: null,
+          windSpeed: null,
+          temperature: null,
+          humidity: null
         },
         distance_km: Math.round(distance * 10) / 10,
         risk_level: riskLevel
@@ -281,7 +280,7 @@ export async function POST(request: NextRequest) {
         id: weatherEvent.id,
         eventType: weatherEvent.eventType,
         severity: weatherEvent.severity,
-        location: weatherEvent.location,
+        location: weatherEvent.affectedArea || 'Unknown',
         latitude: weatherEvent.latitude,
         longitude: weatherEvent.longitude
       },

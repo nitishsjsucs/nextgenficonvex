@@ -80,14 +80,15 @@ export async function POST(req: NextRequest) {
       const emailEventId = `email_event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const emailEvent = await convex.mutation(api.campaigns.createEmailEvent, {
-        id: emailEventId,
-        type,
-        email,
-        url: url || undefined,
+        campaignId: campaignId || 'unknown',
+        personId: userId || 'unknown',
+        eventType: type,
         timestamp: eventTimestamp.getTime(),
-        sgMessageId: sgMessageId || undefined,
-        userId: userId || undefined,
-        campaignId: campaignId || undefined,
+        metadata: {
+          email,
+          url,
+          sgMessageId,
+        },
       });
 
       console.log(`✅ Stored ${type} event for ${email}:`, emailEvent);

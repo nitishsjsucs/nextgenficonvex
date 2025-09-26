@@ -126,8 +126,9 @@ export async function POST(req: NextRequest) {
       // Update KYC status using better-auth
       try {
         await auth.api.updateUser({
-          userId: session.user.id,
-          kycVerified: true,
+          body: {
+            kycVerified: true,
+          },
         });
       } catch (dbErr) {
         console.error("Failed to update kycVerified:", dbErr);
