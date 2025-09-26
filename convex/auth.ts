@@ -27,6 +27,16 @@ export const createAuth = (
     ].filter(Boolean),
   });
 
+  // Test the adapter
+  const adapter = authComponent.adapter(ctx);
+  console.log("[BetterAuth:createAuth] Adapter created:", {
+    adapterType: typeof adapter,
+    adapterKeys: Object.keys(adapter),
+    hasCreateUser: typeof adapter.createUser,
+    hasCreateSession: typeof adapter.createSession,
+    hasCreateAccount: typeof adapter.createAccount,
+  });
+
   return betterAuth({
     // Enable extensive logging for debugging
     logger: {
@@ -42,12 +52,25 @@ export const createAuth = (
     ].filter(Boolean) as string[],
     baseURL: siteUrl,
     database: authComponent.adapter(ctx),
-    // Configure simple, non-verified email/password to get started
+    // Configure email/password with verification
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      requireEmailVerification: true,
       minPasswordLength: 8,
       maxPasswordLength: 128,
+      sendResetPassword: async ({ user, url, token }, request) => {
+        console.log("[BetterAuth:sendResetPassword] Sending reset password email", {
+          userEmail: user.email,
+          userName: user.name,
+          url,
+          token,
+        });
+        // For now, just log - you can implement actual email sending later
+        console.log("[BetterAuth:sendResetPassword] Reset password URL:", url);
+      },
+      onPasswordReset: async ({ user }, request) => {
+        console.log("[BetterAuth:onPasswordReset] Password reset for", user?.email);
+      },
       onSignUp: async (user: any, request: any) => {
         console.log("[BetterAuth:onSignUp] User signup attempt", {
           userId: user.id,
@@ -72,6 +95,22 @@ export const createAuth = (
         });
         return user;
       },
+    },
+    // Email verification configuration
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url, token }, request) => {
+        console.log("[BetterAuth:sendVerificationEmail] Sending verification email", {
+          userEmail: user.email,
+          userName: user.name,
+          url,
+          token,
+        });
+        // For now, just log the verification URL - you can implement actual email sending later
+        console.log("[BetterAuth:sendVerificationEmail] Verification URL:", url);
+        console.log("[BetterAuth:sendVerificationEmail] User can verify by visiting:", url);
+      },
+      autoSignInAfterVerification: true,
+      sendOnSignUp: true,
     },
     // Disable social providers for now since they're not configured
     // socialProviders: {
