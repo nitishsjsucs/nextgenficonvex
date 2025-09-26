@@ -15,11 +15,23 @@ export const createAuth = (
   ctx: GenericCtx<DataModel>,
   { optionsOnly } = { optionsOnly: false },
 ) => {
+  console.log("[BetterAuth:createAuth] Starting auth configuration", {
+    optionsOnly,
+    siteUrl,
+    hasSecret: !!process.env.BETTER_AUTH_SECRET,
+    secretLength: process.env.BETTER_AUTH_SECRET?.length || 0,
+    trustedOrigins: [
+      process.env.SITE_URL,
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+    ].filter(Boolean),
+  });
+
   return betterAuth({
-    // disable logging when createAuth is called just to generate options.
-    // this is not required, but there's a lot of noise in logs without it.
+    // Enable extensive logging for debugging
     logger: {
-      disabled: optionsOnly,
+      disabled: false, // Enable logging for debugging
+      level: "debug",
     },
     secret: process.env.BETTER_AUTH_SECRET!,
     // Allow both local dev and production origins
@@ -34,6 +46,32 @@ export const createAuth = (
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false,
+      minPasswordLength: 8,
+      maxPasswordLength: 128,
+      onSignUp: async (user: any, request: any) => {
+        console.log("[BetterAuth:onSignUp] User signup attempt", {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          userKeys: Object.keys(user),
+          requestHeaders: request?.headers ? Object.fromEntries(request.headers.entries()) : null,
+          requestUrl: request?.url,
+          requestMethod: request?.method,
+        });
+        return user;
+      },
+      onSignIn: async (user: any, request: any) => {
+        console.log("[BetterAuth:onSignIn] User signin attempt", {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          userKeys: Object.keys(user),
+          requestHeaders: request?.headers ? Object.fromEntries(request.headers.entries()) : null,
+          requestUrl: request?.url,
+          requestMethod: request?.method,
+        });
+        return user;
+      },
     },
     // Disable social providers for now since they're not configured
     // socialProviders: {
@@ -72,6 +110,33 @@ export const createAuth = (
           returned: true,
         },
       },
+      onCreate: async (user: any, request: any) => {
+        console.log("[BetterAuth:user.onCreate] User creation", {
+          userId: user.id,
+          email: user.email,
+          name: user.name,
+          userKeys: Object.keys(user),
+          userValues: user,
+          requestHeaders: request?.headers ? Object.fromEntries(request.headers.entries()) : null,
+          requestUrl: request?.url,
+          requestMethod: request?.method,
+        });
+        return user;
+      },
+      onUpdate: async (oldUser: any, newUser: any, request: any) => {
+        console.log("[BetterAuth:user.onUpdate] User update", {
+          oldUserId: oldUser.id,
+          newUserId: newUser.id,
+          oldEmail: oldUser.email,
+          newEmail: newUser.email,
+          oldUserKeys: Object.keys(oldUser),
+          newUserKeys: Object.keys(newUser),
+          requestHeaders: request?.headers ? Object.fromEntries(request.headers.entries()) : null,
+          requestUrl: request?.url,
+          requestMethod: request?.method,
+        });
+        return newUser;
+      },
     },
     plugins: [
       // The Convex plugin is required for Convex compatibility
@@ -86,6 +151,47 @@ export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
     return authComponent.getAuthUser(ctx);
+  },
+});
+
+// Debug function to check auth configuration
+export const debugAuthConfig = query({
+  args: {},
+  handler: async (ctx) => {
+    console.log("[BetterAuth:debugAuthConfig] Checking auth configuration");
+    
+    try {
+      const authUser = await authComponent.getAuthUser(ctx);
+      const identity = await ctx.auth.getUserIdentity();
+      
+      const config = {
+        siteUrl,
+        hasSecret: !!process.env.BETTER_AUTH_SECRET,
+        secretLength: process.env.BETTER_AUTH_SECRET?.length || 0,
+        trustedOrigins: [
+          process.env.SITE_URL,
+          "http://localhost:3000",
+          "http://127.0.0.1:3000",
+        ].filter(Boolean),
+        hasAuthUser: !!authUser,
+        hasIdentity: !!identity,
+        authUserKeys: authUser ? Object.keys(authUser) : null,
+        identityKeys: identity ? Object.keys(identity) : null,
+        authUserEmail: authUser?.email,
+        identitySubject: identity?.subject,
+        timestamp: new Date().toISOString(),
+      };
+      
+      console.log("[BetterAuth:debugAuthConfig] Configuration check result:", config);
+      return config;
+    } catch (error) {
+      console.error("[BetterAuth:debugAuthConfig] Error checking configuration:", error);
+      return {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      };
+    }
   },
 });
 
