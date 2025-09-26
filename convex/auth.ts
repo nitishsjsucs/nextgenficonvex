@@ -34,6 +34,20 @@ export const createAuth = (
     adapterKeys: Object.keys(adapter),
   });
 
+  // Test if the adapter function works
+  try {
+    const testAdapter = adapter({});
+    console.log("[BetterAuth:createAuth] Adapter function test:", {
+      testAdapterType: typeof testAdapter,
+      testAdapterKeys: Object.keys(testAdapter),
+      hasCreateUser: typeof testAdapter.createUser,
+      hasCreateSession: typeof testAdapter.createSession,
+      hasCreateAccount: typeof testAdapter.createAccount,
+    });
+  } catch (error) {
+    console.error("[BetterAuth:createAuth] Adapter function test failed:", error);
+  }
+
   return betterAuth({
     // Enable extensive logging for debugging
     logger: {
