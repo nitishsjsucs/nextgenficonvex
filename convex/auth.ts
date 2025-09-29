@@ -3,6 +3,7 @@ import { convex } from "@convex-dev/better-auth/plugins";
 import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
 import { betterAuth } from "better-auth";
 
 const siteUrl = process.env.SITE_URL || "https://nextgenficonvex.vercel.app";
