@@ -96,19 +96,18 @@ export const createAuth = (
           const dbAdapter = adapter({});
           console.log("[BetterAuth:onSignUp] Testing manual user creation...");
           
-          // This should create a user record
-          const result = await dbAdapter.create("user", {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            emailVerified: false,
-            image: user.image || null,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            phoneNumber: null,
-            dateOfBirth: null,
-            ssn: null,
-            kycVerified: false,
+          // This should create a user record - using correct API signature
+          const result = await dbAdapter.create({
+            model: "user",
+            data: {
+              name: user.name,
+              email: user.email,
+              emailVerified: false,
+              image: user.image || null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              phoneNumber: null,
+            },
           });
           
           console.log("[BetterAuth:onSignUp] Manual user creation result:", result);
