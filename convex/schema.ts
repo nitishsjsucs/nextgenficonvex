@@ -11,9 +11,15 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
     phoneNumber: v.optional(v.union(v.null(), v.string())),
+    phoneNumberVerified: v.optional(v.union(v.null(), v.boolean())),
     dateOfBirth: v.optional(v.union(v.null(), v.string())),
     ssn: v.optional(v.union(v.null(), v.string())),
     kycVerified: v.optional(v.union(v.null(), v.boolean())),
+    userId: v.optional(v.union(v.null(), v.string())),
+    username: v.optional(v.union(v.null(), v.string())),
+    displayUsername: v.optional(v.union(v.null(), v.string())),
+    isAnonymous: v.optional(v.union(v.null(), v.boolean())),
+    twoFactorEnabled: v.optional(v.union(v.null(), v.boolean())),
   }).index("email", ["email"]),
   
   session: defineTable({

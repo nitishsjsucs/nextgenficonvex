@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as campaigns from "../campaigns.js";
 import type * as debug from "../debug.js";
+import type * as debugUser from "../debugUser.js";
 import type * as earthquakes from "../earthquakes.js";
 import type * as http from "../http.js";
 import type * as scoutData from "../scoutData.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   campaigns: typeof campaigns;
   debug: typeof debug;
+  debugUser: typeof debugUser;
   earthquakes: typeof earthquakes;
   http: typeof http;
   scoutData: typeof scoutData;

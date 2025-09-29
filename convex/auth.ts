@@ -91,33 +91,8 @@ export const createAuth = (
           requestMethod: request?.method,
         });
         
-        // Create user in Convex database with additional fields
-        try {
-          const adapter = authComponent.adapter(ctx);
-          const dbAdapter = adapter({});
-          console.log("[BetterAuth:onSignUp] Creating user in Convex database...");
-          
-          // Create user record with all the additional fields from the signup form
-          const result = await dbAdapter.create({
-            model: "user",
-            data: {
-              name: user.name,
-              email: user.email,
-              emailVerified: false,
-              image: user.image || null,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-              phoneNumber: user.phoneNumber || null,
-              dateOfBirth: user.dateOfBirth || null,
-              ssn: user.ssn || null,
-              kycVerified: false,
-            },
-          });
-          
-          console.log("[BetterAuth:onSignUp] User created in Convex database:", result);
-        } catch (error) {
-          console.error("[BetterAuth:onSignUp] Failed to create user in Convex database:", error);
-        }
+        // Let Better Auth handle user creation automatically
+        console.log("[BetterAuth:onSignUp] User signup completed, Better Auth will handle database creation");
         
         return user;
       },
@@ -158,26 +133,26 @@ export const createAuth = (
     //   },
     // },
     user: {
-      deleteUser: { 
+      deleteUser: {
         enabled: true
       },
       additionalFields: {
         phoneNumber: {
           type: "string",
           required: false,
-          input: true, // Allow input during signup
+          input: true,
           returned: true,
         },
         dateOfBirth: {
           type: "string",
           required: false,
-          input: true, // Allow input during signup
+          input: true,
           returned: true,
         },
         ssn: {
           type: "string",
           required: false,
-          input: true, // Allow input during signup
+          input: true,
           returned: true,
         },
         kycVerified: {
