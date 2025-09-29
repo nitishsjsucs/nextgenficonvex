@@ -14,6 +14,7 @@ import type * as debug from "../debug.js";
 import type * as debugUser from "../debugUser.js";
 import type * as earthquakes from "../earthquakes.js";
 import type * as http from "../http.js";
+import type * as listUsers from "../listUsers.js";
 import type * as scoutData from "../scoutData.js";
 import type * as weatherEvents from "../weatherEvents.js";
 
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   debugUser: typeof debugUser;
   earthquakes: typeof earthquakes;
   http: typeof http;
+  listUsers: typeof listUsers;
   scoutData: typeof scoutData;
   weatherEvents: typeof weatherEvents;
 }>;

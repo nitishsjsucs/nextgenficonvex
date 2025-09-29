@@ -143,6 +143,18 @@ export const createAuth = (
           input: true,
           returned: true,
         },
+        dateOfBirth: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        ssn: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
         kycVerified: {
           type: "boolean",
           required: false,
@@ -161,6 +173,33 @@ export const createAuth = (
           requestUrl: request?.url,
           requestMethod: request?.method,
         });
+        
+        // Try to manually insert user into Convex database
+        try {
+          console.log("[BetterAuth:user.onCreate] Attempting manual user insertion into Convex...");
+          const userId = await ctx.db.insert("user", {
+            name: user.name,
+            email: user.email,
+            emailVerified: user.emailVerified || false,
+            image: user.image || null,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            phoneNumber: user.phoneNumber || null,
+            phoneNumberVerified: user.phoneNumberVerified || false,
+            dateOfBirth: user.dateOfBirth || null,
+            ssn: user.ssn || null,
+            kycVerified: user.kycVerified || false,
+            userId: user.id,
+            username: user.username || null,
+            displayUsername: user.displayUsername || null,
+            isAnonymous: user.isAnonymous || false,
+            twoFactorEnabled: user.twoFactorEnabled || false,
+          });
+          console.log("[BetterAuth:user.onCreate] Manual user insertion successful:", userId);
+        } catch (error) {
+          console.error("[BetterAuth:user.onCreate] Manual user insertion failed:", error);
+        }
+        
         return user;
       },
       onUpdate: async (oldUser: any, newUser: any, request: any) => {
