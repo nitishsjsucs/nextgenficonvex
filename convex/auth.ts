@@ -2,7 +2,7 @@ import { createClient, type GenericCtx } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { betterAuth } from "better-auth";
 
 const siteUrl = process.env.SITE_URL || "https://nextgenficonvex.vercel.app";
@@ -63,7 +63,7 @@ export const createAuth = (
     // Configure email/password with verification
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      requireEmailVerification: false, // Disable email verification for now to test KYC flow
       minPasswordLength: 8,
       maxPasswordLength: 128,
       sendResetPassword: async ({ user, url, token }, request) => {
@@ -90,13 +90,13 @@ export const createAuth = (
           requestMethod: request?.method,
         });
         
-        // Try to manually create user in database to test if adapter works
+        // Create user in Convex database with additional fields
         try {
           const adapter = authComponent.adapter(ctx);
           const dbAdapter = adapter({});
-          console.log("[BetterAuth:onSignUp] Testing manual user creation...");
+          console.log("[BetterAuth:onSignUp] Creating user in Convex database...");
           
-          // This should create a user record - using correct API signature
+          // Create user record with all the additional fields from the signup form
           const result = await dbAdapter.create({
             model: "user",
             data: {
@@ -106,13 +106,16 @@ export const createAuth = (
               image: user.image || null,
               createdAt: Date.now(),
               updatedAt: Date.now(),
-              phoneNumber: null,
+              phoneNumber: user.phoneNumber || null,
+              dateOfBirth: user.dateOfBirth || null,
+              ssn: user.ssn || null,
+              kycVerified: false,
             },
           });
           
-          console.log("[BetterAuth:onSignUp] Manual user creation result:", result);
+          console.log("[BetterAuth:onSignUp] User created in Convex database:", result);
         } catch (error) {
-          console.error("[BetterAuth:onSignUp] Manual user creation failed:", error);
+          console.error("[BetterAuth:onSignUp] Failed to create user in Convex database:", error);
         }
         
         return user;
@@ -144,7 +147,7 @@ export const createAuth = (
         console.log("[BetterAuth:sendVerificationEmail] User can verify by visiting:", url);
       },
       autoSignInAfterVerification: true,
-      sendOnSignUp: true,
+      sendOnSignUp: false, // Disable email verification for now
     },
     // Disable social providers for now since they're not configured
     // socialProviders: {
@@ -161,19 +164,19 @@ export const createAuth = (
         phoneNumber: {
           type: "string",
           required: false,
-          input: false,
+          input: true, // Allow input during signup
           returned: true,
         },
         dateOfBirth: {
           type: "string",
           required: false,
-          input: false,
+          input: true, // Allow input during signup
           returned: true,
         },
         ssn: {
           type: "string",
           required: false,
-          input: false,
+          input: true, // Allow input during signup
           returned: true,
         },
         kycVerified: {
@@ -264,6 +267,47 @@ export const debugAuthConfig = query({
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date().toISOString(),
       };
+    }
+  },
+});
+
+// Mutation to update user KYC status
+export const updateUserKycStatus = mutation({
+  args: { 
+    userId: v.string(),
+    kycVerified: v.boolean(),
+    additionalData: v.optional(v.any())
+  },
+  handler: async (ctx, args) => {
+    console.log("[BetterAuth:updateUserKycStatus] Updating KYC status", {
+      userId: args.userId,
+      kycVerified: args.kycVerified,
+      additionalData: args.additionalData,
+    });
+
+    try {
+      // Find the user by ID
+      const user = await ctx.db
+        .query("user")
+        .filter((q) => q.eq(q.field("email"), args.userId))
+        .first();
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Update the user's KYC status
+      await ctx.db.patch(user._id, {
+        kycVerified: args.kycVerified,
+        updatedAt: Date.now(),
+        ...args.additionalData,
+      });
+
+      console.log("[BetterAuth:updateUserKycStatus] KYC status updated successfully");
+      return { success: true, userId: args.userId, kycVerified: args.kycVerified };
+    } catch (error) {
+      console.error("[BetterAuth:updateUserKycStatus] Error updating KYC status:", error);
+      throw error;
     }
   },
 });
