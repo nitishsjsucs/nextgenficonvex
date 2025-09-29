@@ -137,24 +137,6 @@ export const createAuth = (
         enabled: true
       },
       additionalFields: {
-        phoneNumber: {
-          type: "string",
-          required: false,
-          input: true,
-          returned: true,
-        },
-        dateOfBirth: {
-          type: "string",
-          required: false,
-          input: true,
-          returned: true,
-        },
-        ssn: {
-          type: "string",
-          required: false,
-          input: true,
-          returned: true,
-        },
         kycVerified: {
           type: "boolean",
           required: false,
