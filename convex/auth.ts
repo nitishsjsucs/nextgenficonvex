@@ -60,7 +60,7 @@ export const createAuth = (
       "http://127.0.0.1:3000",
     ].filter(Boolean) as string[],
     baseURL: siteUrl,
-    database: () => authComponent.adapter(ctx),
+    database: authComponent.adapter(ctx),
     // Configure email/password with verification
     emailAndPassword: {
       enabled: true,
@@ -138,18 +138,6 @@ export const createAuth = (
       },
       additionalFields: {
         phoneNumber: {
-          type: "string",
-          required: false,
-          input: true,
-          returned: true,
-        },
-        dateOfBirth: {
-          type: "string",
-          required: false,
-          input: true,
-          returned: true,
-        },
-        ssn: {
           type: "string",
           required: false,
           input: true,
