@@ -60,7 +60,7 @@ export const createAuth = (
       "http://127.0.0.1:3000",
     ].filter(Boolean) as string[],
     baseURL: siteUrl,
-    database: authComponent.adapter(ctx),
+    database: () => authComponent.adapter(ctx),
     // Configure email/password with verification
     emailAndPassword: {
       enabled: true,
@@ -137,6 +137,24 @@ export const createAuth = (
         enabled: true
       },
       additionalFields: {
+        phoneNumber: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        dateOfBirth: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
+        ssn: {
+          type: "string",
+          required: false,
+          input: true,
+          returned: true,
+        },
         kycVerified: {
           type: "boolean",
           required: false,
@@ -155,10 +173,6 @@ export const createAuth = (
           requestUrl: request?.url,
           requestMethod: request?.method,
         });
-        
-        // The Better Auth Convex adapter should handle database insertion automatically
-        console.log("[BetterAuth:user.onCreate] User creation completed, adapter should handle database insertion");
-        
         return user;
       },
       onUpdate: async (oldUser: any, newUser: any, request: any) => {

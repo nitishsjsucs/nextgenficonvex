@@ -7,3 +7,4 @@ export const listUsers = query({
     return users;
   },
 });
+
