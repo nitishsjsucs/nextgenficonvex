@@ -158,7 +158,7 @@ const App = () => {
             <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
             <a href="#demo" className="text-gray-600 hover:text-gray-900 transition-colors">Demo</a>
             <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
-            <Button onClick={() => router.push('/auth/sign-in')} variant="outline" className="mr-2">Login</Button>
+            <Button onClick={() => router.push('/auth/login')} variant="outline" className="mr-2">Login</Button>
             <Button onClick={() => router.push('/demo')} className="bg-black hover:bg-gray-800">
               Request Demo
             </Button>
@@ -218,10 +218,10 @@ const App = () => {
           <motion.div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16" variants={item}>
             <Button
               size="lg"
-              onClick={() => router.push('/demo')}
+              onClick={() => router.push('/auth/signup')}
               className="px-8 py-4 bg-black hover:bg-gray-800 text-white text-lg font-semibold shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105"
             >
-              Request Live Demo
+              Get Started
               <TrendingUpIcon className="ml-2 w-5 h-5" />
             </Button>
             <Button

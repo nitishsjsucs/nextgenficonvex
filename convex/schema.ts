@@ -2,40 +2,30 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // Better Auth tables
-  user: defineTable({
+  // Convex Auth tables
+  users: defineTable({
     name: v.string(),
     email: v.string(),
     emailVerified: v.boolean(),
     image: v.optional(v.union(v.null(), v.string())),
+    phoneNumber: v.optional(v.union(v.null(), v.string())),
+    kycVerified: v.optional(v.union(v.null(), v.boolean())),
     createdAt: v.number(),
     updatedAt: v.number(),
-    phoneNumber: v.optional(v.union(v.null(), v.string())),
-    phoneNumberVerified: v.optional(v.union(v.null(), v.boolean())),
-    dateOfBirth: v.optional(v.union(v.null(), v.string())),
-    ssn: v.optional(v.union(v.null(), v.string())),
-    kycVerified: v.optional(v.union(v.null(), v.boolean())),
-    userId: v.optional(v.union(v.null(), v.string())),
-    username: v.optional(v.union(v.null(), v.string())),
-    displayUsername: v.optional(v.union(v.null(), v.string())),
-    isAnonymous: v.optional(v.union(v.null(), v.boolean())),
-    twoFactorEnabled: v.optional(v.union(v.null(), v.boolean())),
   }).index("email", ["email"]),
-  
-  session: defineTable({
+
+  sessions: defineTable({
+    userId: v.string(),
     expiresAt: v.number(),
     token: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    ipAddress: v.optional(v.union(v.null(), v.string())),
-    userAgent: v.optional(v.union(v.null(), v.string())),
-    userId: v.string(),
   }).index("token", ["token"]).index("userId", ["userId"]),
-  
-  account: defineTable({
+
+  accounts: defineTable({
+    userId: v.string(),
     accountId: v.string(),
     providerId: v.string(),
-    userId: v.string(),
     accessToken: v.optional(v.union(v.null(), v.string())),
     refreshToken: v.optional(v.union(v.null(), v.string())),
     idToken: v.optional(v.union(v.null(), v.string())),
@@ -46,8 +36,8 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("accountId", ["accountId"]).index("userId", ["userId"]),
-  
-  verification: defineTable({
+
+  verifications: defineTable({
     identifier: v.string(),
     value: v.string(),
     expiresAt: v.number(),
@@ -116,7 +106,10 @@ export default defineSchema({
     longitude: v.number(),
     houseValue: v.number(),
     hasInsurance: v.boolean(),
-  }).index("by_email", ["email"]),
+    userId: v.optional(v.string()), // Reference to users table
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_email", ["email"]).index("by_user", ["userId"]),
   
   // Scout data enrichment
   scoutData: defineTable({
