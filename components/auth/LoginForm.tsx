@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSignIn } from "@convex-dev/auth/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
@@ -10,7 +10,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const signIn = useSignIn();
+  const { signIn } = useAuthActions();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {

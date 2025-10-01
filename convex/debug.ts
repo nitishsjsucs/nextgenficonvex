@@ -6,27 +6,27 @@ export const checkTables = query({
   handler: async (ctx) => {
     try {
       // Check if user table exists and has data
-      const users = await ctx.db.query("user").collect();
-      const accounts = await ctx.db.query("account").collect();
-      const sessions = await ctx.db.query("session").collect();
-      const verifications = await ctx.db.query("verification").collect();
+      const users = await ctx.db.query("users").collect();
+      const accounts = await ctx.db.query("accounts").collect();
+      const sessions = await ctx.db.query("sessions").collect();
+      const verifications = await ctx.db.query("verifications").collect();
 
       return {
         success: true,
         tables: {
-          user: {
+          users: {
             count: users.length,
             sample: users.slice(0, 2), // First 2 users
           },
-          account: {
+          accounts: {
             count: accounts.length,
             sample: accounts.slice(0, 2), // First 2 accounts
           },
-          session: {
+          sessions: {
             count: sessions.length,
             sample: sessions.slice(0, 2), // First 2 sessions
           },
-          verification: {
+          verifications: {
             count: verifications.length,
             sample: verifications.slice(0, 2), // First 2 verifications
           },

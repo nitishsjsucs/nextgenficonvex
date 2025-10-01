@@ -9,7 +9,15 @@ export default defineSchema({
     emailVerified: v.boolean(),
     image: v.optional(v.union(v.null(), v.string())),
     phoneNumber: v.optional(v.union(v.null(), v.string())),
+    phoneNumberVerified: v.optional(v.union(v.null(), v.boolean())),
+    dateOfBirth: v.optional(v.union(v.null(), v.string())),
+    ssn: v.optional(v.union(v.null(), v.string())),
     kycVerified: v.optional(v.union(v.null(), v.boolean())),
+    userId: v.optional(v.union(v.null(), v.string())),
+    username: v.optional(v.union(v.null(), v.string())),
+    displayUsername: v.optional(v.union(v.null(), v.string())),
+    isAnonymous: v.optional(v.union(v.null(), v.boolean())),
+    twoFactorEnabled: v.optional(v.union(v.null(), v.boolean())),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("email", ["email"]),
@@ -107,8 +115,8 @@ export default defineSchema({
     houseValue: v.number(),
     hasInsurance: v.boolean(),
     userId: v.optional(v.string()), // Reference to users table
-    createdAt: v.number(),
-    updatedAt: v.number(),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
   }).index("by_email", ["email"]).index("by_user", ["userId"]),
   
   // Scout data enrichment

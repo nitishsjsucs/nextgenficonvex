@@ -5,16 +5,25 @@ import { query } from "./_generated/server";
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [
     Password({
-      // Configure password provider with custom fields
-      additionalFields: {
-        phoneNumber: {
-          type: "string",
-          required: false,
-        },
-        kycVerified: {
-          type: "boolean",
-          required: false,
-        },
+      // Configure password provider with custom profile fields
+      profile(params, ctx) {
+        const profile: any = {
+          email: params.email as string,
+          name: params.name as string,
+        };
+        
+        // Add optional fields only if they exist
+        if (params.phoneNumber) {
+          profile.phoneNumber = params.phoneNumber as string;
+        }
+        if (params.dateOfBirth) {
+          profile.dateOfBirth = params.dateOfBirth as string;
+        }
+        if (params.ssn) {
+          profile.ssn = params.ssn as string;
+        }
+        
+        return profile;
       },
     }),
   ],

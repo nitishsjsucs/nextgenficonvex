@@ -1,18 +1,12 @@
 "use client";
 
-import { useSignOut } from "@convex-dev/auth/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 export function AuthButton() {
-  const signOut = useSignOut();
-  const { isAuthenticated } = useAuthActions();
+  const { signOut } = useAuthActions();
   const user = useQuery(api.auth.getCurrentUser);
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="flex items-center space-x-4">
