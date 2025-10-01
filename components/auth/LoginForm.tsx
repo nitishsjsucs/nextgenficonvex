@@ -23,6 +23,7 @@ export function LoginForm() {
       await signIn("password", {
         email,
         password,
+        flow: "signIn",
       });
       
       // Redirect to dashboard on successful login

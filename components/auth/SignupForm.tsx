@@ -31,6 +31,7 @@ export function SignupForm() {
         phoneNumber,
         dateOfBirth,
         ssn,
+        flow: "signUp",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
