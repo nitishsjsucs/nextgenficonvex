@@ -105,15 +105,31 @@ export const getKycStatus = query({
     let userEmail = identity.email;
     if (!userEmail && identity.subject) {
       console.log("No email in identity, trying to find user by subject:", identity.subject);
-      // Try to find user by subject (user ID)
-      const userBySubject = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("userId"), identity.subject))
+      
+      // First, try to find the account by userId (extract from subject if needed)
+      let accountUserId = identity.subject;
+      
+      // If subject contains a pipe, it might be in format "userId|sessionId"
+      if (identity.subject.includes('|')) {
+        accountUserId = identity.subject.split('|')[0];
+        console.log("Extracted userId from subject:", accountUserId);
+      }
+      
+      // Find the account by userId
+      const account = await ctx.db
+        .query("authAccounts")
+        .filter((q) => q.eq(q.field("userId"), accountUserId))
         .first();
       
-      if (userBySubject?.email) {
-        userEmail = userBySubject.email;
-        console.log("Found user email by subject:", userEmail);
+      console.log("Account lookup by userId:", { 
+        accountFound: !!account, 
+        accountUserId: account?.userId,
+        providerAccountId: account?.providerAccountId 
+      });
+      
+      if (account?.providerAccountId) {
+        userEmail = account.providerAccountId;
+        console.log("Found user email from account:", userEmail);
       }
     }
 

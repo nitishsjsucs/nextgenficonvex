@@ -53,27 +53,57 @@ export const getCurrentUser = query({
     let userEmail = identity.email;
     if (!userEmail && identity.subject) {
       console.log("No email in identity, trying to find user by subject:", identity.subject);
-      // Try to find user by subject (user ID)
-      const userBySubject = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("userId"), identity.subject))
+      
+      // First, try to find the account by userId (extract from subject if needed)
+      let accountUserId = identity.subject;
+      
+      // If subject contains a pipe, it might be in format "userId|sessionId"
+      if (identity.subject.includes('|')) {
+        accountUserId = identity.subject.split('|')[0];
+        console.log("Extracted userId from subject:", accountUserId);
+      }
+      
+      // Find the account by userId
+      const account = await ctx.db
+        .query("authAccounts")
+        .filter((q) => q.eq(q.field("userId"), accountUserId))
         .first();
       
-      if (userBySubject?.email) {
-        userEmail = userBySubject.email;
-        console.log("Found user email by subject:", userEmail);
+      console.log("Account lookup by userId:", { 
+        accountFound: !!account, 
+        accountUserId: account?.userId,
+        providerAccountId: account?.providerAccountId 
+      });
+      
+      if (account?.providerAccountId) {
+        userEmail = account.providerAccountId;
+        console.log("Found user email from account:", userEmail);
         
-        // Return enhanced identity with email
-        return {
-          ...identity,
-          email: userEmail,
-          name: userBySubject.name || identity.name,
-          phoneNumber: userBySubject.phoneNumber,
-          dateOfBirth: userBySubject.dateOfBirth,
-          ssn: userBySubject.ssn,
-          kycVerified: userBySubject.kycVerified,
-          emailVerificationTime: userBySubject.emailVerificationTime,
-        };
+        // Now find the user by email
+        const user = await ctx.db
+          .query("users")
+          .filter((q) => q.eq(q.field("email"), userEmail))
+          .first();
+        
+        if (user) {
+          console.log("Found user data by email:", { 
+            userEmail: user.email,
+            kycVerified: user.kycVerified,
+            emailVerificationTime: user.emailVerificationTime 
+          });
+          
+          // Return enhanced identity with email
+          return {
+            ...identity,
+            email: userEmail,
+            name: user.name || identity.name,
+            phoneNumber: user.phoneNumber,
+            dateOfBirth: user.dateOfBirth,
+            ssn: user.ssn,
+            kycVerified: user.kycVerified,
+            emailVerificationTime: user.emailVerificationTime,
+          };
+        }
       }
     }
 
