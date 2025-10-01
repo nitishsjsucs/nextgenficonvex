@@ -1,8 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   // Convex Auth tables
+  ...authTables,
+  
+  // Custom users table with additional fields
   users: defineTable({
     name: v.string(),
     email: v.string(),
@@ -21,37 +25,6 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("email", ["email"]),
-
-  sessions: defineTable({
-    userId: v.string(),
-    expiresAt: v.number(),
-    token: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("token", ["token"]).index("userId", ["userId"]),
-
-  accounts: defineTable({
-    userId: v.string(),
-    accountId: v.string(),
-    providerId: v.string(),
-    accessToken: v.optional(v.union(v.null(), v.string())),
-    refreshToken: v.optional(v.union(v.null(), v.string())),
-    idToken: v.optional(v.union(v.null(), v.string())),
-    accessTokenExpiresAt: v.optional(v.union(v.null(), v.number())),
-    refreshTokenExpiresAt: v.optional(v.union(v.null(), v.number())),
-    scope: v.optional(v.union(v.null(), v.string())),
-    password: v.optional(v.union(v.null(), v.string())),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("accountId", ["accountId"]).index("userId", ["userId"]).index("providerAndAccountId", ["providerId", "accountId"]),
-
-  verifications: defineTable({
-    identifier: v.string(),
-    value: v.string(),
-    expiresAt: v.number(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("identifier", ["identifier"]),
   
   // Earthquake data
   earthquakes: defineTable({

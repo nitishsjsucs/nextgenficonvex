@@ -19,18 +19,17 @@ export const checkUserExists = query({
 
       // Check in the account table for any accounts with this email
       const accounts = await ctx.db
-        .query("accounts")
+        .query("authAccounts")
         .collect();
 
       // Check in the session table for any active sessions
       const sessions = await ctx.db
-        .query("sessions")
+        .query("authSessions")
         .collect();
 
       // Check in the verification table
       const verifications = await ctx.db
-        .query("verifications")
-        .withIndex("identifier", (q) => q.eq("identifier", args.email))
+        .query("authVerificationCodes")
         .collect();
 
       const result = {
@@ -71,9 +70,9 @@ export const getAllUsers = query({
 
     try {
       const users = await ctx.db.query("users").collect();
-      const accounts = await ctx.db.query("accounts").collect();
-      const sessions = await ctx.db.query("sessions").collect();
-      const verifications = await ctx.db.query("verifications").collect();
+      const accounts = await ctx.db.query("authAccounts").collect();
+      const sessions = await ctx.db.query("authSessions").collect();
+      const verifications = await ctx.db.query("authVerificationCodes").collect();
 
       const result = {
         timestamp: new Date().toISOString(),
@@ -111,9 +110,9 @@ export const clearAllAuthData = query({
     try {
       // Get all records first
       const users = await ctx.db.query("users").collect();
-      const accounts = await ctx.db.query("accounts").collect();
-      const sessions = await ctx.db.query("sessions").collect();
-      const verifications = await ctx.db.query("verifications").collect();
+      const accounts = await ctx.db.query("authAccounts").collect();
+      const sessions = await ctx.db.query("authSessions").collect();
+      const verifications = await ctx.db.query("authVerificationCodes").collect();
 
       const result = {
         timestamp: new Date().toISOString(),
