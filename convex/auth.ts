@@ -64,11 +64,23 @@ export const sendVerificationEmail = mutation({
       const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       const verificationUrl = `${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/verify-email?token=${token}`;
 
+      // Find the user's account to get the accountId
+      const account = await ctx.db
+        .query("authAccounts")
+        .filter((q) => q.eq(q.field("providerAccountId"), args.email))
+        .first();
+
+      if (!account) {
+        return { success: false, message: "Account not found" };
+      }
+
       // Store verification code
       await ctx.db.insert("authVerificationCodes", {
         code: token,
-        email: args.email,
-        createdAt: Date.now(),
+        accountId: account._id,
+        provider: "password",
+        expirationTime: Date.now() + (24 * 60 * 60 * 1000), // 24 hours from now
+        emailVerified: args.email, // Store email in emailVerified field
       });
 
       // Send email via API
@@ -122,19 +134,16 @@ export const verifyEmail = mutation({
         return { success: false, message: "Invalid verification token" };
       }
 
-      // Check if the token is expired (24 hours)
+      // Check if the token is expired
       const now = Date.now();
-      const tokenAge = now - verification.createdAt;
-      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-      if (tokenAge > maxAge) {
+      if (now > verification.expirationTime) {
         return { success: false, message: "Verification token has expired" };
       }
 
-      // Find the user by email
+      // Find the user by email (stored in emailVerified field)
       const user = await ctx.db
         .query("users")
-        .filter((q) => q.eq(q.field("email"), verification.email))
+        .filter((q) => q.eq(q.field("email"), verification.emailVerified))
         .first();
 
       if (!user) {

@@ -1,6 +1,25 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Type definitions for verification results
+interface VerificationResult {
+  success: boolean;
+  message?: string;
+  extractedData?: {
+    name: string;
+    dateOfBirth: string;
+    documentType: string;
+    documentNumber: string;
+    expirationDate: string;
+    address: string;
+  };
+  verification?: {
+    nameMatch: boolean;
+    dobMatch: boolean;
+    documentValid: boolean;
+  };
+}
+
 // KYC verification mutation
 export const verifyIdentity = mutation({
   args: {
@@ -82,7 +101,7 @@ export const getKycStatus = query({
 });
 
 // Helper function to process document with Gemini API
-async function processDocumentWithGemini(fileUrl: string, user: any) {
+async function processDocumentWithGemini(fileUrl: string, user: any): Promise<VerificationResult> {
   try {
     // Check if Gemini API key is available
     const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -193,7 +212,7 @@ async function processDocumentWithGemini(fileUrl: string, user: any) {
 }
 
 // Fallback simulation function
-function simulateDocumentProcessing(user: any) {
+function simulateDocumentProcessing(user: any): Promise<VerificationResult> {
   console.log("Using simulated document processing");
   
   // Simulate processing time
