@@ -34,7 +34,78 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.auth.getUserIdentity();
+    const identity = await ctx.auth.getUserIdentity();
+    
+    console.log("getCurrentUser called:", { 
+      hasIdentity: !!identity, 
+      identityEmail: identity?.email,
+      identitySubject: identity?.subject,
+      identityName: identity?.name,
+      fullIdentity: identity,
+      timestamp: new Date().toISOString() 
+    });
+    
+    if (!identity) {
+      return null;
+    }
+
+    // If identity exists but no email, try to find user by subject
+    let userEmail = identity.email;
+    if (!userEmail && identity.subject) {
+      console.log("No email in identity, trying to find user by subject:", identity.subject);
+      // Try to find user by subject (user ID)
+      const userBySubject = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("userId"), identity.subject))
+        .first();
+      
+      if (userBySubject?.email) {
+        userEmail = userBySubject.email;
+        console.log("Found user email by subject:", userEmail);
+        
+        // Return enhanced identity with email
+        return {
+          ...identity,
+          email: userEmail,
+          name: userBySubject.name || identity.name,
+          phoneNumber: userBySubject.phoneNumber,
+          dateOfBirth: userBySubject.dateOfBirth,
+          ssn: userBySubject.ssn,
+          kycVerified: userBySubject.kycVerified,
+          emailVerificationTime: userBySubject.emailVerificationTime,
+        };
+      }
+    }
+
+    // If we have email in identity, try to get full user data
+    if (userEmail) {
+      const user = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), userEmail))
+        .first();
+      
+      if (user) {
+        console.log("Found user data:", { 
+          userEmail: user.email,
+          kycVerified: user.kycVerified,
+          emailVerificationTime: user.emailVerificationTime 
+        });
+        
+        return {
+          ...identity,
+          email: user.email,
+          name: user.name || identity.name,
+          phoneNumber: user.phoneNumber,
+          dateOfBirth: user.dateOfBirth,
+          ssn: user.ssn,
+          kycVerified: user.kycVerified,
+          emailVerificationTime: user.emailVerificationTime,
+        };
+      }
+    }
+
+    console.log("Returning basic identity without user data");
+    return identity;
   },
 });
 

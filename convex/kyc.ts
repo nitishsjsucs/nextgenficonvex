@@ -87,12 +87,38 @@ export const getKycStatus = query({
     console.log("getKycStatus called:", { 
       hasIdentity: !!identity, 
       identityEmail: identity?.email,
+      identitySubject: identity?.subject,
+      identityName: identity?.name,
+      fullIdentity: identity,
       timestamp: new Date().toISOString() 
     });
     
-    if (!identity || !identity.email) {
-      console.log("No identity or email, returning default values");
-      // Return default values instead of throwing error
+    if (!identity) {
+      console.log("No identity, returning default values");
+      return {
+        kycVerified: false,
+        emailVerified: false,
+      };
+    }
+
+    // If identity exists but no email, try to find user by subject
+    let userEmail = identity.email;
+    if (!userEmail && identity.subject) {
+      console.log("No email in identity, trying to find user by subject:", identity.subject);
+      // Try to find user by subject (user ID)
+      const userBySubject = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("userId"), identity.subject))
+        .first();
+      
+      if (userBySubject?.email) {
+        userEmail = userBySubject.email;
+        console.log("Found user email by subject:", userEmail);
+      }
+    }
+
+    if (!userEmail) {
+      console.log("No email found in identity or user record, returning default values");
       return {
         kycVerified: false,
         emailVerified: false,
@@ -101,7 +127,7 @@ export const getKycStatus = query({
 
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("email"), identity.email))
+      .filter((q) => q.eq(q.field("email"), userEmail))
       .first();
 
     console.log("User lookup in getKycStatus:", { 
