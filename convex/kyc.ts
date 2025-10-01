@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Type definitions for verification results
 interface VerificationResult {
@@ -101,52 +102,21 @@ export const getKycStatus = query({
       };
     }
 
-    // If identity exists but no email, try to find user by subject
-    let userEmail = identity.email;
-    if (!userEmail && identity.subject) {
-      console.log("No email in identity, trying to find user by subject:", identity.subject);
-      
-      // First, try to find the account by userId (extract from subject if needed)
-      let accountUserId = identity.subject;
-      
-      // If subject contains a pipe, it might be in format "userId|sessionId"
-      if (identity.subject.includes('|')) {
-        accountUserId = identity.subject.split('|')[0];
-        console.log("Extracted userId from subject:", accountUserId);
-      }
-      
-      // Find the account by userId
-      const account = await ctx.db
-        .query("authAccounts")
-        .filter((q) => q.eq(q.field("userId"), accountUserId))
-        .first();
-      
-      console.log("Account lookup by userId:", { 
-        accountFound: !!account, 
-        accountUserId: account?.userId,
-        providerAccountId: account?.providerAccountId 
-      });
-      
-      if (account?.providerAccountId) {
-        userEmail = account.providerAccountId;
-        console.log("Found user email from account:", userEmail);
-      }
-    }
-
-    if (!userEmail) {
-      console.log("No email found in identity or user record, returning default values");
+    // Use getAuthUserId to get the correct user ID
+    const userId = await getAuthUserId(ctx);
+    console.log("getAuthUserId result:", { userId });
+    
+    if (!userId) {
+      console.log("No userId found, returning default values");
       return {
         kycVerified: false,
         emailVerified: false,
       };
     }
 
-    const user = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("email"), userEmail))
-      .first();
-
-    console.log("User lookup in getKycStatus:", { 
+    // Get the user document directly by ID
+    const user = await ctx.db.get(userId);
+    console.log("User lookup by ID:", { 
       userFound: !!user, 
       userEmail: user?.email,
       kycVerified: user?.kycVerified,
