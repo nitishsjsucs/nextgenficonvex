@@ -36,7 +36,6 @@ export const verifyIdentity = mutation({
     if (user) {
       await ctx.db.patch(user._id, {
         kycVerified: true,
-        updatedAt: Date.now(),
       });
     }
 
@@ -65,7 +64,7 @@ export const getKycStatus = query({
 
     return {
       kycVerified: user?.kycVerified || false,
-      emailVerified: user?.emailVerified || false,
+      emailVerified: user?.emailVerificationTime ? true : false,
     };
   },
 });
