@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { Authenticated, Unauthenticated, AuthLoading } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useRouter } from 'next/navigation';
@@ -59,7 +59,7 @@ function KycContent() {
 
   // Fetch KYC status from Convex
   const kycStatus = useQuery(api.kyc.getKycStatus);
-  const sendVerificationEmail = useMutation(api.auth.sendVerificationEmail);
+  const sendVerificationEmail = useAction(api.auth.sendVerificationEmail);
   
   const loading = user === undefined || kycStatus === undefined;
   const shouldRedirect = Boolean(user && kycVerified === true);
