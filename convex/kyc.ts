@@ -85,7 +85,11 @@ export const getKycStatus = query({
     const identity = await ctx.auth.getUserIdentity();
     
     if (!identity || !identity.email) {
-      throw new Error("Not authenticated");
+      // Return default values instead of throwing error
+      return {
+        kycVerified: false,
+        emailVerified: false,
+      };
     }
 
     const user = await ctx.db

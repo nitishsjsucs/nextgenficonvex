@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
@@ -113,6 +113,94 @@ export function EarthquakeMap({
     return null;
   };
 
+  // --------------- Fetch Earthquakes ---------------
+  const fetchEarthquakes = useCallback(async () => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    const drawnGroup = drawnGroupRef.current;
+    const quakeGroup = quakeGroupRef.current;
+
+    if (!L || !map || !drawnGroup) return;
+
+    if (drawnGroup.getLayers().length === 0) {
+      setError("Please draw a rectangle or polygon on the map first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const bounds = drawnGroup.getBounds();
+      const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+
+      // Get the drawn shape for polygon filtering
+      const shape = drawnGroup.getLayers()[0];
+      if (!shape) throw new Error("No shape found");
+
+      // Optional polygon payload (for strict server-side filtering if you want)
+      const polygonRing = shapeToPolygonRing(L, shape);
+      const polygon =
+        polygonRing && polygonRing.length >= 4
+          ? { type: "Polygon", coordinates: [polygonRing] }
+          : null;
+
+      const response = await fetch("/api/earthquakes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bbox,
+          hours,
+          minmag: minMag,
+          polygon, // send polygon if you want server-side point-in-polygon
+          strictPolygon: polyFilter,
+        }),
+      });
+
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+      const data = await response.json();
+
+      // Clear previous markers
+      quakeGroup.clearLayers();
+
+      // Add new markers
+      data.forEach((quake: any) => {
+        const color = quake.magnitude >= 5 ? "#ef4444" : quake.magnitude >= 4 ? "#f59e0b" : "#10b981";
+        const radius = Math.max(4, quake.magnitude * 2);
+
+        L.circleMarker([quake.latitude, quake.longitude], {
+          radius,
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.6,
+          color,
+        })
+          .bindPopup(
+            `
+          <div class="p-2">
+            <strong>🌍 Magnitude ${quake.magnitude}</strong><br/>
+            <strong>Location:</strong> ${quake.place}<br/>
+            <strong>Time:</strong> ${new Date(quake.time).toLocaleString()}<br/>
+            <strong>Depth:</strong> ${quake.depth} km<br/>
+            <a href="${quake.url}" target="_blank" class="text-blue-600 hover:underline">View Details</a>
+          </div>
+        `
+          )
+          .addTo(quakeGroup);
+      });
+
+      setEarthquakeData(data);
+      onEarthquakeSelection?.(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch earthquake data"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [minMag, onEarthquakeSelection, hours, polyFilter]);
+
   // --------------- Init Map (StrictMode-safe) ---------------
   useEffect(() => {
     let canceled = false;
@@ -213,103 +301,7 @@ export function EarthquakeMap({
         mapRef.current = null;
       }
     };
-  }, []); // run once; internal guards prevent double init in StrictMode
-
-  // --------------- Fetch Earthquakes ---------------
-  const fetchEarthquakes = async () => {
-    const L = LRef.current;
-    const map = mapRef.current;
-    const drawnGroup = drawnGroupRef.current;
-    const quakeGroup = quakeGroupRef.current;
-
-    if (!L || !map || !drawnGroup) return;
-
-    if (drawnGroup.getLayers().length === 0) {
-      setError("Please draw a rectangle or polygon on the map first");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const shape = drawnGroup.getLayers()[0];
-      const bounds = shape.getBounds
-        ? shape.getBounds()
-        : L.geoJSON(shape.toGeoJSON()).getBounds();
-
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
-      const bbox: [number, number, number, number] = [
-        sw.lng,
-        sw.lat,
-        ne.lng,
-        ne.lat,
-      ];
-
-      // Optional polygon payload (for strict server-side filtering if you want)
-      const polygonRing = shapeToPolygonRing(L, shape);
-      const polygon =
-        polygonRing && polygonRing.length >= 4
-          ? { type: "Polygon", coordinates: [polygonRing] }
-          : null;
-
-      const response = await fetch("/api/earthquakes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bbox,
-          hours,
-          minmag: minMag,
-          polygon, // send polygon if you want server-side point-in-polygon
-          strictPolygon: polyFilter,
-        }),
-      });
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const data: EarthquakeResponse = await response.json();
-
-      // Render markers
-      quakeGroup.clearLayers();
-      data.earthquakes.forEach((eq) => {
-        if (eq.latitude == null || eq.longitude == null) return;
-        const mag = eq.mag || 0;
-        const radius = Math.max(4, mag * 2.5);
-        const color = mag >= 5 ? "#dc2626" : mag >= 3 ? "#ea580c" : "#65a30d";
-        L.circleMarker([eq.latitude, eq.longitude], {
-          radius,
-          weight: 1,
-          opacity: 0.9,
-          fillOpacity: 0.5,
-          color,
-        })
-          .bindPopup(
-            `
-          <div class="p-2">
-            <strong>M${mag.toFixed(1)}</strong> — ${eq.place || "Unknown location"}<br/>
-            ${eq.time ? new Date(eq.time).toLocaleString() : "Unknown time"}<br/>
-            Depth: ${eq.depth_km ?? "Unknown"} km<br/>
-            ${
-              eq.url
-                ? `<a href="${eq.url}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">USGS Details</a>`
-                : ""
-            }
-          </div>
-        `.trim()
-          )
-          .addTo(quakeGroup);
-      });
-
-      setEarthquakeData(data);
-      onEarthquakeSelection?.(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch earthquake data"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [fetchEarthquakes]); // run once; internal guards prevent double init in StrictMode
 
   // --------------- Render ---------------
   return (

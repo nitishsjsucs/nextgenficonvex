@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
@@ -160,6 +160,127 @@ export function WeatherMap({
     }
   };
 
+  // --------------- Fetch Weather Data ---------------
+  const fetchWeatherData = useCallback(async () => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    const drawnGroup = drawnGroupRef.current;
+    const weatherGroup = weatherGroupRef.current;
+
+    if (!L || !map || !drawnGroup) return;
+
+    if (drawnGroup.getLayers().length === 0) {
+      setError("Please draw a rectangle or polygon on the map first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const bounds = drawnGroup.getBounds();
+      const bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+
+      // Get the drawn shape for polygon filtering
+      const shape = drawnGroup.getLayers()[0];
+      if (!shape) throw new Error("No shape found");
+
+      // Optional polygon payload (for strict server-side filtering if you want)
+      const polygonRing = shapeToPolygonRing(L, shape);
+      const polygon =
+        polygonRing && polygonRing.length >= 4
+          ? { type: "Polygon", coordinates: [polygonRing] }
+          : null;
+
+      const response = await fetch("/api/weather", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bbox,
+          days,
+          eventTypes,
+          minSeverity,
+          polygon, // send polygon if you want server-side point-in-polygon
+          strictPolygon: polyFilter,
+        }),
+      });
+
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+      const data = await response.json();
+
+      // Clear previous markers
+      weatherGroup.clearLayers();
+
+      // Add new markers
+      data.forEach((event: any) => {
+        let color = "#10b981";
+        let icon = "🌦️";
+        
+        switch (event.eventType) {
+          case 'rain':
+            color = "#3b82f6";
+            icon = "🌧️";
+            break;
+          case 'storm':
+            color = "#f59e0b";
+            icon = "⛈️";
+            break;
+          case 'flood':
+            color = "#ef4444";
+            icon = "🌊";
+            break;
+          case 'cyclone':
+            color = "#dc2626";
+            icon = "🌀";
+            break;
+          case 'heatwave':
+            color = "#f97316";
+            icon = "☀️";
+            break;
+        }
+
+        // Size based on severity
+        let radius = 8;
+        switch (event.severity) {
+          case 'severe': radius = 12; break;
+          case 'heavy': radius = 10; break;
+          case 'moderate': radius = 8; break;
+          case 'light': radius = 6; break;
+        }
+
+        L.circleMarker([event.latitude, event.longitude], {
+          radius,
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.6,
+          color,
+        })
+          .bindPopup(
+            `
+          <div class="p-2">
+            <strong>${icon} ${event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1)} (${event.severity})</strong><br/>
+            <strong>Location:</strong> ${event.location}<br/>
+            <strong>Start:</strong> ${new Date(event.startTime).toLocaleString()}<br/>
+            ${event.endTime ? `<strong>End:</strong> ${new Date(event.endTime).toLocaleString()}<br/>` : ''}
+            <strong>Description:</strong> ${event.description || 'No description available'}
+          </div>
+        `
+          )
+          .addTo(weatherGroup);
+      });
+
+      setWeatherData(data);
+      onWeatherSelection?.(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch weather data"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [days, eventTypes, minSeverity, polyFilter, onWeatherSelection]);
+
   // --------------- Init Map (StrictMode-safe) ---------------
   useEffect(() => {
     let canceled = false;
@@ -272,7 +393,7 @@ export function WeatherMap({
         mapRef.current = null;
       }
     };
-  }, [centerZipCode]); // Re-init if centerZipCode changes
+  }, [centerZipCode, fetchWeatherData]); // Re-init if centerZipCode changes
 
   // --------------- Center on Zip Code ---------------
   const centerOnZipCode = async () => {
@@ -307,138 +428,6 @@ export function WeatherMap({
     }
   };
 
-  // --------------- Fetch Weather Data ---------------
-  const fetchWeatherData = async () => {
-    const L = LRef.current;
-    const map = mapRef.current;
-    const drawnGroup = drawnGroupRef.current;
-    const weatherGroup = weatherGroupRef.current;
-
-    if (!L || !map || !drawnGroup) return;
-
-    if (drawnGroup.getLayers().length === 0) {
-      setError("Please draw a rectangle or polygon on the map first, or use zip code centering");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const shape = drawnGroup.getLayers()[0];
-      const bounds = shape.getBounds
-        ? shape.getBounds()
-        : L.geoJSON(shape.toGeoJSON()).getBounds();
-
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
-      const bbox: [number, number, number, number] = [
-        sw.lng,
-        sw.lat,
-        ne.lng,
-        ne.lat,
-      ];
-
-      // Optional polygon payload
-      const polygonRing = shapeToPolygonRing(L, shape);
-      const polygon =
-        polygonRing && polygonRing.length >= 4
-          ? { type: "Polygon", coordinates: [polygonRing] }
-          : null;
-
-      const response = await fetch("/api/weather", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bbox,
-          days,
-          eventTypes,
-          minSeverity,
-          polygon,
-          strictPolygon: polyFilter,
-        }),
-      });
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const data: WeatherResponse = await response.json();
-
-      // Render weather event markers
-      weatherGroup.clearLayers();
-      data.weatherEvents.forEach((event) => {
-        if (event.latitude == null || event.longitude == null) return;
-        
-        // Choose icon and color based on event type
-        let color = "#3b82f6"; // default blue
-        let icon = "🌦️";
-        
-        switch (event.eventType) {
-          case 'rain':
-            color = "#0ea5e9";
-            icon = "🌧️";
-            break;
-          case 'storm':
-            color = "#f59e0b";
-            icon = "⛈️";
-            break;
-          case 'flood':
-            color = "#ef4444";
-            icon = "🌊";
-            break;
-          case 'cyclone':
-            color = "#dc2626";
-            icon = "🌀";
-            break;
-          case 'heatwave':
-            color = "#f97316";
-            icon = "☀️";
-            break;
-        }
-
-        // Size based on severity
-        let radius = 8;
-        switch (event.severity) {
-          case 'severe': radius = 12; break;
-          case 'heavy': radius = 10; break;
-          case 'moderate': radius = 8; break;
-          case 'light': radius = 6; break;
-        }
-
-        L.circleMarker([event.latitude, event.longitude], {
-          radius,
-          weight: 2,
-          opacity: 0.9,
-          fillOpacity: 0.6,
-          color,
-        })
-          .bindPopup(
-            `
-          <div class="p-2">
-            <strong>${icon} ${event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1)} (${event.severity})</strong><br/>
-            <strong>Location:</strong> ${event.location}<br/>
-            <strong>Start:</strong> ${new Date(event.startTime).toLocaleString()}<br/>
-            ${event.endTime ? `<strong>End:</strong> ${new Date(event.endTime).toLocaleString()}<br/>` : ''}
-            ${event.description ? `<strong>Description:</strong> ${event.description}<br/>` : ''}
-            ${event.rainfall ? `<strong>Rainfall:</strong> ${event.rainfall}mm<br/>` : ''}
-            ${event.windSpeed ? `<strong>Wind Speed:</strong> ${event.windSpeed} km/h<br/>` : ''}
-            ${event.temperature ? `<strong>Temperature:</strong> ${event.temperature}°C<br/>` : ''}
-            ${event.humidity ? `<strong>Humidity:</strong> ${event.humidity}%<br/>` : ''}
-            ${event.sourceUrl ? `<a href="${event.sourceUrl}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Source</a>` : ''}
-          </div>
-        `.trim()
-          )
-          .addTo(weatherGroup);
-      });
-
-      setWeatherData(data);
-      onWeatherSelection?.(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch weather data"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const getWeatherIcon = (eventType: string) => {
     switch (eventType) {
