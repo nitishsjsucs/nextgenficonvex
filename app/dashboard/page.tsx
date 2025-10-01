@@ -4,12 +4,14 @@ import { useQuery } from "convex/react";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { AuthButton } from "@/components/auth/AuthButton";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   return (
     <>
       <AuthLoading>
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading...</p>
@@ -18,21 +20,16 @@ export default function DashboardPage() {
       </AuthLoading>
       
       <Unauthenticated>
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-          <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <h1 className="text-center text-3xl font-extrabold text-gray-900">
-              Access Denied
-            </h1>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Please{" "}
-              <a
-                href="/auth/login"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                sign in
-              </a>{" "}
-              to access the dashboard.
-            </p>
+        <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+            <p className="text-muted-foreground mb-4">Please sign in to access the dashboard.</p>
+            <a
+              href="/auth/login"
+              className="text-primary hover:underline"
+            >
+              Sign In
+            </a>
           </div>
         </div>
       </Unauthenticated>
@@ -46,6 +43,26 @@ export default function DashboardPage() {
 
 function DashboardContent() {
   const user = useQuery(api.auth.getCurrentUser);
+  const router = useRouter();
+
+  // Check if user needs KYC verification
+  useEffect(() => {
+    if (user && !user.kycVerified) {
+      router.replace('/kyc');
+    }
+  }, [user, router]);
+
+  // Show loading while checking KYC status
+  if (user && !user.kycVerified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting to KYC verification...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

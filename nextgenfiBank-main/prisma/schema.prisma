@@ -1,0 +1,403 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  kycVerified   Boolean   @default(false)
+  createdAt     DateTime
+  updatedAt     DateTime
+  dateOfBirth   String
+  ssn           String
+  phoneNumber   String
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+// RAG System Models for Earthquake Insurance Marketing
+
+model Earthquake {
+  id        String   @id // USGS earthquake ID
+  time      BigInt?  // Unix timestamp in milliseconds
+  latitude  Float?
+  longitude Float?
+  magnitude Float?   @map("mag")
+  place     String?
+  depth     Float?   @map("depth_km")
+  url       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  campaigns Campaign[]
+
+  // Indexes for performance
+  @@index([latitude, longitude])
+  @@index([magnitude])
+  @@index([time])
+  @@map("earthquake")
+}
+
+// Weather Data Model for Bangladesh Weather Insurance Marketing
+model WeatherEvent {
+  id          String   @id @default(cuid()) // Generated ID
+  eventType   String   @map("event_type")   // "rain", "storm", "flood", "cyclone", "heatwave"
+  severity    String   // "light", "moderate", "heavy", "severe"
+  location    String   // Location name in Bangladesh
+  latitude    Float?
+  longitude   Float?
+  startTime   DateTime @map("start_time")
+  endTime     DateTime? @map("end_time")
+  description String?  @db.Text
+  
+  // Weather specific data
+  rainfall    Float?   // mm of rainfall
+  windSpeed   Float?   @map("wind_speed") // km/h
+  temperature Float?   // Celsius
+  humidity    Float?   // Percentage
+  
+  // Data source info
+  source      String?  // API source
+  sourceUrl   String?  @map("source_url")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  weatherCampaigns WeatherCampaign[]
+
+  // Indexes for performance
+  @@index([latitude, longitude])
+  @@index([eventType, severity])
+  @@index([startTime])
+  @@index([location])
+  @@map("weather_event")
+}
+
+// Full Scout Consumer Data Model (756 fields)
+model ScoutData {
+  id String @id @default(cuid())
+  
+  // Core Identity Fields
+  pid         String? @map("PID")         // Persistent ID
+  hhid        String? @map("HHID")        // Household ID
+  fname       String? @map("FNAME")       // First Name
+  mname       String? @map("MNAME")       // Middle Name
+  lname       String? @map("LNAME")       // Last Name
+  suffix      String? @map("SUFFIX")      // Suffix
+  gender      String? @map("GENDER")      // M/F
+  age         Int?    @map("AGE")         // 18-99
+  dob         String? @map("DOB")         // Date of Birth
+  
+  // Address Fields
+  addrid      String? @map("ADDRID")      // Address ID
+  address     String? @map("ADDRESS")     // Full Address
+  house       String? @map("HOUSE")       // House Number
+  predir      String? @map("PREDIR")      // Pre Direction
+  street      String? @map("STREET")      // Street Name
+  strtype     String? @map("STRTYPE")     // Street Type
+  postdir     String? @map("POSTDIR")     // Post Direction
+  apttype     String? @map("APTTYPE")     // Apt Type
+  aptnbr      String? @map("APTNBR")      // Apt Number
+  city        String? @map("CITY")        // City
+  state       String? @map("STATE")       // State
+  zip         String? @map("ZIP")         // ZIP Code
+  z4          String? @map("Z4")          // ZIP+4
+  dpc         String? @map("DPC")         // Delivery Point Code
+  z4type      String? @map("Z4TYPE")      // ZIP+4 Type
+  crte        String? @map("CRTE")        // Carrier Route
+  dpv         String? @map("DPV")         // Delivery Point Validation
+  vacant      String? @map("VACANT")      // Vacant Property Y/N
+  
+  // Geographic Codes
+  msa         String? @map("MSA")         // Metropolitan Statistical Area
+  cbsa        String? @map("CBSA")        // Core Based Statistical Area
+  statecd     String? @map("STATECD")     // State Code
+  cntycd      String? @map("CNTYCD")      // County Code
+  censustract String? @map("CENSUSTRACT") // Census Tract
+  censusblck  String? @map("CENSUSBLCK")  // Census Block
+  cntysizecd  String? @map("CNTYSIZECD")  // County Size Code
+  latitude    Float?  @map("LATITUDE")    // Latitude
+  longitude   Float?  @map("LONGITUDE")   // Longitude
+  geolevel    String? @map("GEOLEVEL")    // Geo Level Precision
+  
+  // Phone Fields
+  phone       String? @map("PHONE")       // Primary Phone
+  dnc         String? @map("DNC")         // Do Not Call Flag
+  phone2      String? @map("PHONE2")      // Phone 2
+  dnc2        String? @map("DNC2")        // Do Not Call Flag 2
+  phone3      String? @map("PHONE3")      // Phone 3
+  dnc3        String? @map("DNC3")        // Do Not Call Flag 3
+  
+  // Demographic Fields
+  lor            Int?    @map("LOR")            // Length of Residence
+  homeownercd    String? @map("HOMEOWNERCD")    // Homeowner Code H/R/O/P/U
+  dwelltype      String? @map("DWELLTYPE")      // Dwelling Type S/M
+  marriedcd      String? @map("MARRIEDCD")      // Married Code M/S
+  sglparent      String? @map("SGLPARENT")      // Single Parent Y
+  hhnbrsr        String? @map("HHNBRSR")        // Household Number Seniors
+  hhnbr          Int?    @map("HHNBR")          // Number of Adults
+  spanishspcd    String? @map("SPANISHSPCD")    // Speaks Spanish Y
+  sohocd         String? @map("SOHOCD")         // Small Office Home Office Y
+  veterancd      String? @map("VETERANCD")      // Veteran Y
+  creditcard     String? @map("CREDITCARD")     // Credit Card Y
+  charitydnr     String? @map("CHARITYDNR")     // Charity Donor Y
+  
+  // Financial Fields
+  mrkthomeval    String? @map("MRKTHOMEVAL")    // Market Home Value A-S
+  educationcd    String? @map("EDUCATIONCD")    // Education Code A-F
+  languagecd     String? @map("LANGUAGECD")     // Language Code
+  ehiV2          String? @map("EHI_V2")         // Estimated Household Income A-M
+  occupationcdV2 String? @map("OCCUPATIONCD_V2") // Occupation Code
+  wealthscrV2    String? @map("WEALTHSCR_V2")   // Wealth Score A-L
+  
+  // Children Fields
+  child           String? @map("CHILD")           // Presence of Children Y
+  childagecd6     String? @map("CHILDAGECD_6")   // Children under 6
+  childagecd610   String? @map("CHILDAGECD_6_10") // Children 6-10
+  childagecd1115  String? @map("CHILDAGECD_11_15") // Children 11-15
+  childagecd1617  String? @map("CHILDAGECD_16_17") // Children 16-17
+  childnbrcd      String? @map("CHILDNBRCD")      // Number of Children A-D
+  
+  // Property Fields
+  yrbld      String? @map("YRBLD")      // Year Built
+  mobhomecd  String? @map("MOBHOMECD")  // Mobile Home Y
+  pool       String? @map("POOL")       // Pool Y
+  fireplcd   String? @map("FIREPLCD")   // Fireplace Y
+  
+  // Age Range Fields
+  ageRangeEstimated String? @map("AGE_RANGE_ESTIMATED") // A-G
+  ageRangeInferred  String? @map("AGE_RANGE_INFERRED")  // A-G
+  ageRangeCombined  String? @map("AGE_RANGE_COMBINED")  // A-G
+  
+  // Sample of key CPI Interest Indices (there are 200+ total)
+  cpiApparelIndex      Int? @map("CPI_APPAREL_INDEX")      // 0-9
+  cpiAutoIndex         Int? @map("CPI_AUTO_INDEX")         // 0-9
+  cpiBargainsIndex     Int? @map("CPI_BARGAINS_INDEX")     // 0-9
+  cpiBusinessIndex     Int? @map("CPI_BUSINESS_INDEX")     // 0-9
+  cpiDonorIndex        Int? @map("CPI_DONOR_INDEX")        // 0-9
+  cpiFamilyIndex       Int? @map("CPI_FAMILY_INDEX")       // 0-9
+  cpiHealthIndex       Int? @map("CPI_HEALTH_INDEX")       // 0-9
+  cpiHomeLivIndex      Int? @map("CPI_HOMELIV_INDEX")      // 0-9
+  cpiInsuranceIndex    Int? @map("CPI_INSURANCE_INDEX")    // 0-9
+  cpiInternetIndex     Int? @map("CPI_INTERNET_INDEX")     // 0-9
+  cpiOutdoorsIndex     Int? @map("CPI_OUTDOORS_INDEX")     // 0-9
+  cpiPetsIndex         Int? @map("CPI_PETS_INDEX")         // 0-9
+  cpiSportsIndex       Int? @map("CPI_SPORTS_INDEX")       // 0-9
+  cpiTravelIndex       Int? @map("CPI_TRAVEL_INDEX")       // 0-9
+  
+  // Property Data Fields (key ones)
+  propOwnerocc    String? @map("PROP_OWNEROCC")    // Owner Occupied Y
+  propInd         String? @map("PROP_IND")         // Property Type
+  propValcalc     String? @map("PROP_VALCALC")     // Property Value
+  propYrbld       String? @map("PROP_YRBLD")       // Year Built
+  propLivingsqft  String? @map("PROP_LIVINGSQFT")  // Living Sq Ft
+  propBedrms      String? @map("PROP_BEDRMS")      // Bedrooms
+  propBaths       String? @map("PROP_BATHS")       // Bathrooms
+  propPool        String? @map("PROP_POOL")        // Pool Y
+  propFrpl        String? @map("PROP_FRPL")        // Fireplace Y
+  propSaledate    String? @map("PROP_SALEDATE")    // Last Sale Date
+  propSaleamt     String? @map("PROP_SALEAMT")     // Last Sale Amount
+  propMtgamt      String? @map("PROP_MTGAMT")      // Mortgage Amount
+  
+  // Home Equity & AVM
+  hequityEst         Float? @map("HEQUITY_EST")         // Home Equity Estimate
+  hequityConf        String? @map("HEQUITY_CONF")       // Confidence 1-4
+  avmEstimate        Float? @map("AVM_ESTIMATE")        // Property Value Estimate
+  avmEstimateError   Float? @map("AVM_ESTIMATE_ERROR")  // Estimate Error
+  
+  // InMarket Scores
+  imsHomebuyer   Int? @map("IMS_HOMEBUYER")   // 1-8 (1=highest likelihood)
+  imsMtgNewhome  Int? @map("IMS_MTG_NEWHOME") // 1-8
+  imsMtgRefi     Int? @map("IMS_MTG_REFI")    // 1-8
+  imsMtgHeloc    Int? @map("IMS_MTG_HELOC")   // 1-8
+  imsMtgReverse  Int? @map("IMS_MTG_REVERSE") // 1-8
+  imsMtgGeneral  Int? @map("IMS_MTG_GENERAL") // 1-8
+  imsMtgOverall  Int? @map("IMS_MTG_OVERALL") // 1-8
+  
+  // Buyer/Seller Intent Scores
+  buyerScore  Int? @map("BUYER_SCORE")  // 0-150 (150=highest)
+  sellerScore Int? @map("SELLER_SCORE") // 0-150
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationships
+  campaigns Campaign[]
+  weatherCampaigns WeatherCampaign[]
+  persons   Person[]
+  
+  // Indexes for performance (key fields for earthquake insurance)
+  @@index([latitude, longitude])
+  @@index([homeownercd])
+  @@index([mrkthomeval])
+  @@index([ehiV2])
+  @@index([wealthscrV2])
+  @@index([cpiInsuranceIndex])
+  @@index([city, state])
+  @@index([zip])
+  @@index([age])
+  @@map("scout_data")
+}
+
+// Simplified Person model that references ScoutData
+model Person {
+  id          String     @id @default(cuid())
+  scoutDataId String?    @map("scout_data_id")
+  firstName   String     @map("first_name")
+  lastName    String     @map("last_name")
+  email       String     @unique
+  city        String
+  state       String
+  latitude    Float
+  longitude   Float
+  houseValue  Int        @map("house_value")
+  hasInsurance Boolean   @map("has_insurance")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relationships
+  scoutData ScoutData? @relation(fields: [scoutDataId], references: [id])
+  campaigns Campaign[]
+  weatherCampaigns WeatherCampaign[]
+
+  // Indexes for performance
+  @@index([latitude, longitude])
+  @@index([houseValue])
+  @@index([hasInsurance])
+  @@index([city, state])
+  @@index([scoutDataId])
+  @@map("person")
+}
+
+model Campaign {
+  id           String   @id @default(cuid())
+  personId     String?  @map("person_id")
+  scoutDataId  String?  @map("scout_data_id")
+  earthquakeId String   @map("earthquake_id")
+  subject      String
+  body         String   @db.Text
+  riskLevel    String   @map("risk_level") // "high", "medium", "low"
+  distanceKm   Float    @map("distance_km")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships (can be linked to either Person or ScoutData)
+  person     Person?     @relation(fields: [personId], references: [id], onDelete: Cascade)
+  scoutData  ScoutData?  @relation(fields: [scoutDataId], references: [id], onDelete: Cascade)
+  earthquake Earthquake  @relation(fields: [earthquakeId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([personId])
+  @@index([scoutDataId])
+  @@index([earthquakeId])
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("campaign")
+}
+
+// Weather-based Campaign Model
+model WeatherCampaign {
+  id            String   @id @default(cuid())
+  personId      String?  @map("person_id")
+  scoutDataId   String?  @map("scout_data_id")
+  weatherEventId String  @map("weather_event_id")
+  subject       String
+  body          String   @db.Text
+  riskLevel     String   @map("risk_level") // "high", "medium", "low"
+  distanceKm    Float    @map("distance_km")
+  campaignType  String   @map("campaign_type") @default("weather_insurance") // "weather_insurance", "flood_insurance", etc.
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships (can be linked to either Person or ScoutData)
+  person       Person?      @relation(fields: [personId], references: [id], onDelete: Cascade)
+  scoutData    ScoutData?   @relation(fields: [scoutDataId], references: [id], onDelete: Cascade)
+  weatherEvent WeatherEvent @relation(fields: [weatherEventId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([personId])
+  @@index([scoutDataId])
+  @@index([weatherEventId])
+  @@index([riskLevel])
+  @@index([campaignType])
+  @@index([createdAt])
+  @@map("weather_campaign")
+}
+
+// Email Event Tracking Model for SendGrid Webhooks
+model EmailEvent {
+  id          String   @id @default(cuid())
+  type        String   // 'click' | 'open' | 'delivered' | 'bounce' | 'dropped' | 'processed'
+  email       String
+  url         String?  // For click events
+  timestamp   DateTime
+  sgMessageId String?  @map("sg_message_id")
+  userId      String?  @map("user_id")
+  campaignId  String?  @map("campaign_id")
+  createdAt   DateTime @default(now())
+
+  @@index([type, timestamp])
+  @@index([campaignId, timestamp])
+  @@index([userId, timestamp])
+  @@index([email, timestamp])
+  @@map("email_event")
+}

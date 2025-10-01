@@ -15,7 +15,7 @@ export default function KycPage() {
   return (
     <>
       <AuthLoading>
-        <div className="container mx-auto flex items-center justify-center min-h-screen">
+        <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
           <div className="text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin mb-4" />
             <p className="text-muted-foreground">Loading your verification status...</p>
@@ -24,7 +24,7 @@ export default function KycPage() {
       </AuthLoading>
       
       <Unauthenticated>
-        <div className="container mx-auto flex items-center justify-center min-h-screen">
+        <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
             <p className="text-muted-foreground mb-4">Please sign in to access KYC verification.</p>
@@ -227,15 +227,16 @@ function KycContent() {
 
 
   return (
-    <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Verify Your Identity</CardTitle>
-          <CardDescription>
-            Please upload a government-issued ID to complete our KYC (Know Your Customer) process.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+      <div className="w-full max-w-lg">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Verify Your Identity</CardTitle>
+            <CardDescription>
+              Please upload a government-issued ID to complete our KYC (Know Your Customer) process.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
           {emailVerificationSuccess && (
             <Alert className="border-green-500 bg-green-50">
               <div className="flex items-center gap-2">
@@ -307,8 +308,9 @@ function KycContent() {
               'Verify Identity'
             )}
           </Button>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,756 @@
+field,description,long description,type,characters
+PID,Persistent ID assigned to individuals identified in the Scout Graph,Up to 32-Character Alphanumeric Persistent ID,VARCHAR,32
+HHID,A household ID is an indicator that groups individuals living in the same household,Up to 96-Character Alphanumeric Household ID,VARCHAR,96
+FNAME,First Name of the Individual,First Name,VARCHAR,50
+MNAME,Middle name or initial of the individual if available,Middle Name,VARCHAR,50
+LNAME,Last name of the individual,Surname,VARCHAR,50
+SUFFIX,The generational suffix of the individual if available,"II, III, IV, IX, JR, SR, V, VI, VII, VIII",VARCHAR,10
+GENDER,"The gender of an individual is typically gathered from self-reported or public information sources, or can be assigned based on the individuals name and/or title. In cases where the individual's first name and title are unknown/ambiguous and no additional sources reflect gender, the gender will be coded as NULL","Gender Code:
+M - Male
+F - Female",VARCHAR,1
+AGE,"Adult Estimated Age is calculated from date of birth data. Age data is applied at the individual level and is compiled from a variety of sources that may include public data, buying activities, and self-reported information. This is a calculation of age based on the individual's year of birth. The calculation is current year minus the YOB.",Estimated Age: 18-99,INTEGER,2
+DOB,"The known month and Year of birth of the individual and date where availabe; in some cases where the birth month is unknown, this field value may contain only the 4 digit birth year. The Adult Date of Birth select will identify members of the household that meet the given birth date criteria. Dates must be entered for the birth month and year. Age data is applied at the individual level and is compiled from a variety of sources that may include public data, buying activities, and self-reported information. Exact age data is considered sensitive in nature and may require contractual restrictions.",Date of Birth: 6-digit DOB (YYYYMM) or 4-digit DOB (YYYY),VARCHAR,8
+ADDRID,Persistent ID assigned to addresses identified in the Scout Graph,Up to 32-character Alphanumeric Address ID,VARCHAR,32
+ADDRESS,"All address components, including House Number, Directional, Street Name, etc.",Full Address,VARCHAR,64
+HOUSE,Physical Street Number,"House Number: Can contain numbers, letters and characters (- and /)",VARCHAR,10
+PREDIR,"An address element that indicates geographic location such as N, S, E, W, NE, NW, SE, and SW that is placed to the left of (before) the street name such as E HOOVER ST.","Street PreDirectional: E, N, NE, NW, S, SE, SW, W",VARCHAR,2
+STREET,"Information found in the primary name field of the USPS ZIP+4 file that identifies the street and forms the principal component of the delivery address line. A street name can include qualifiers such as directionals (e.g., North, SE) before or after the street name and suffixes (e.g., ST, AVE). Street names can be words or numbers.","Street Name, PO Box Name, RR # Box Name, or HC # Box Name",VARCHAR,28
+STRTYPE,"An address component that qualifies the street name by type of street such as AVE (avenue), DR (drive), or RD (road). Sometimes a street may have a double suffix such as AVENUE DR.","Physical Street Suffix: ST, AVE, PL, BLVD, PKWY, etc",VARCHAR,4
+POSTDIR,"An address element that indicates geographic location such as N, S, E, W, NE, NW, SE, and SW that is placed to the right of (after) the street name or street name suffix such as BAY DR W.","Street Post Direction: E, N, NE, NW, S, SE, SW, W",VARCHAR,2
+APTTYPE,"An address element in the delivery address line that indicates an apartment, office, suite, or some other division (e.g., 102 MAIN ST STE 202)","Unit Designator: APT, STE, UNIT, etc.",VARCHAR,4
+APTNBR,"An address element in the delivery address line that indicates number of an apartment, office, suite, or some other division (e.g., 102 MAIN ST STE 202)","Unit Number: Can contain numbers, letters and characters (- and /)",VARCHAR,8
+CITY,"As listed in USPS Publication 26, Directory of Post Offices. Post Office names in excess of 28 positions have been abbreviated by USPS.",City Name,VARCHAR,28
+STATE,Two-position alpha FIPS State code,"State Abbreviation: AL, FL, IL, NY, etc.",VARCHAR,2
+ZIP,"Five-position numeric as assigned in USPS publication 65, National Zip Code Directory","Zip Code: Five digit numbers only, e.g. 60614",VARCHAR,5
+Z4,"Four-position numeric as assigned in USPS Publication 65, National Zip Code Directory","Zip+4 Code: Four digit numbers only, e.g. 5392",VARCHAR,4
+DPC,Delivery Point Code with Check Digit,Delivery Point Code with Check Digit,VARCHAR,3
+Z4TYPE,USPS Zip+4 Record Type,"Zip+4 Type:
+F - Firm or company address
+G - General delivery address
+H - High-rise or business complex
+P - PO Box address
+R - Rural route address
+S - Street or residential address",VARCHAR,1
+CRTE,Carrier Route Code,Carrier Route Code,VARCHAR,4
+DPV,Delivery Point Validation,"Delivery Point Validation Code:
+Y - Address DPV confirmed for both primary and (if present) secondary numbers
+D - Address DPV confirmed for the primary number only, and secondary number information was missing
+S - Address DPV confirmed for the primary number only, and secondary number information was present but unconfirmed
+N - Both Primary and (if present) Secondary number information failed to DPV Confirm",VARCHAR,1
+VACANT,Designation by USPS of a vacant property,"Vacant:
+Y - Physical Address Identified by USPS as vacant
+N - Someone living at that address",VARCHAR,1
+INTERNAL,,Future Use,VARCHAR,255
+INTERNAL2,,Future Use,VARCHAR,255
+INTERNAL3,,Future Use,VARCHAR,255
+MSA,"A metropolitan statistical area (MSA), formerly known as a standard metropolitan statistical area (SMSA), is the formal definition of a region that consists of a city and surrounding communities that are linked by social and economic factors, as established by the U.S. Office of Management and Budget (OMB). For more information on how FIPS, MSA and CBSA are related, visit https://data.nber.org/data/cbsa-msa-fips-ssa-county-crosswalk.html",See tab - Geographical Codes - Metropolitan Statistical Area (MSA),VARCHAR,4
+CBSA,"New metropolitan and micropolitan statistical area definitions were announced by OMB on June 6, 2003, based on application of the 2000 standards with Census 2000 data. Metropolitan and Micropolitan Statistical Areas are collectively referred to as Core-Based Statistical Areas. Metropolitan statistical areas have at least one urbanized area of 50,000 or more population, plus adjacent territory that has a high degree of social and economic integration with the core as measured by commuting ties. Micropolitan statistical areas are a new set of statistical areas that have at least one urban cluster of at least 10,000 but less than 50,000 population, plus adjacent territory that has a high degree of social and economic integration with the core as measured by commuting ties. For more information on how FIPS, MSA and CBSA are related, visit https://data.nber.org/data/cbsa-msa-fips-ssa-county-crosswalk.html",See tab - Geographical Codes - Core Based Statistical Areas (CBSA),VARCHAR,5
+STATECD,"Federal Information Processing System (FIPS) Codes for States and Counties
+FIPS codes are numbers which uniquely identify geographic areas. This field contains the two-digit state code, e.g. Code 01 corresponds to ALABAMA.",Numeric State Code,VARCHAR,2
+CNTYCD,"Federal Information Processing System (FIPS) Codes for States and Counties
+FIPS codes are numbers which uniquely identify geographic areas. This field contains the three-digit county code, e.g. Code 003 corresponds to Baldwin County.",County Code,VARCHAR,3
+CENSUSTRACT,"A census tract, census area, census district or meshblock is a geographic region defined for the purpose of taking a census",Census Tract,VARCHAR,6
+CENSUSBLCK,A census block is the smallest geographic unit used by the United States Census Bureau for tabulation of 100-percent data.,Census Block,VARCHAR,4
+CNTYSIZECD,"A, B, C, and D counties are based on the population totals of U.S. counties and also their proximity to a metro area or anchor city. A counties are the largest U.S. counties by population, and D counties are the smallest. Counties are classified on the basis of data from the latest census, which takes place every 10 years.","County Size Code:
+A - Any county located in the 25 largest U.S. cities or their consolidated statistical urban areas
+B - Any county not designated as an A County that has population over 150,000 or is part of a consolidated statistical area with population over 150,000
+C - Any county or consolidated statistical area not designated as an A or B County that has population over 40,000
+D - Any county statistical area not designated as an A, B, or C County",VARCHAR,1
+LATITUDE,"The geometrical location north or south of the equator assigned to the address. A value in decimal degrees to an accuracy of 4 decimal places is accurate to 11.1 meters, a value of 6 decimal places is accurate 0.111 meters.",Up to 6 decimal precision for non-PII version and 6 decimal precision for PII version,FLOAT,11
+LONGITUDE,"The geometrical location east or west of a north-south line, called the prime meridian, assigned to the address. A value in decimal degrees to an accuracy of 4 decimal places is accurate to 11.1 meters, a value of 6 decimal places is accurate 0.111 meters.",Up to 6 decimal precision for non-PII version and 6 decimal precision for PII version,FLOAT,11
+GEOLEVEL,The level of precision at which the Latitude and Longitude are assigned,See tab - GeoLevel Precision Assignment,VARCHAR,2
+PHONE,Public directory assistance and household based telephone number 1,Phone,VARCHAR,10
+DNC,Phone Included in the federal level do not call list: Y or null,Y - Do Not Call Flag,VARCHAR,1
+PHONE2,Public directory assistance and household based telephone number 2,Phone 2,VARCHAR,10
+DNC2,Phone Included in the federal level do not call list: Y or null,Y - Do Not Call Flag 2,VARCHAR,1
+PHONE3,Public directory assistance and household based telephone number 3,Phone 3,VARCHAR,10
+DNC3,Phone Included in the federal level do not call list: Y or null,Y - Do Not Call Flag 3,VARCHAR,1
+LOR,"Length of residence indicates the probable number of years an individual/household has been located at current address. Data comes from multiple sources including real estate data, public records and self-reported sources.","Length of Residence:
+00-15 Based on length of residence of the household at the same address
+Individual household LOR values range from 0, indicating less than 1 year, to 15, indicating 15 or more years.",INTEGER,2
+HOMEOWNERCD,"Homeowner and renter status identifies if the occupant of the residence is the homeowner or a renter. Data comes from multiple sources including property deed records from County Assessors or County Recorders, new home sales transaction data, and self-reported survey data.",Homeowner Codes:                                                         H - Homeowner is a deterministic value of known homeowners as recorded by property deed records and recorded home sales                                                R - Renter is a deterministic value of known households living in properties that are not currently occupied by the homeowner. Data is sourced from property deed records and recorded home sales data.                                                                                     O - Probable Homeowner is a probabilistic value identifying medium-level confidence of a homeowner status. Data is based on a combination of survey data signals indicating a likely homeowner status.                P - Probable Renter is a probabilistic value identifying medium-level confidence of a renter status. Data is based on a combination of survey data signals indicating a likely renter status.                                        U - Unknown are records with no data signals to indicate a homeowner or renter status and are assigned as likely to be low-confidence renters. Previous versions recorded assigned these records as NULL.,VARCHAR,1
+DWELLTYPE,Dwelling Type is an indicator of the type of structure at a given address. Single Family Dwelling Unit (SFDU) indicates that one household resides in the structure. Multiple Family Dwelling Unit (MFDU) is one where more than one household is present in the building.,"Dwelling Type:
+S - Single
+M - Multi",VARCHAR,1
+EHI,"*DO NOT USE* This field was formally retired and all values were nulled with the February 20, 2024 release. Please use EHI_V2 (Field #343).","*DO NOT USE* New Estimated Household Income field available as of June 20, 2023 Release - See Field #343 EHI_V2",VARCHAR,1
+MARRIEDCD,The Marital Status select indicates if member of the household is likely to be married or single. Data is applied at the individual level when available.,"Marital Status Code:
+M - Married
+S - Single",VARCHAR,1
+SGLPARENT,Potentially single parent determined by model of known demographic information. The Single Parent Household select is used to identify households with a potentially single parent present. Data is applied at the individual level and is sourced from self-reported survey data.,"Modeled select based on presence of children and married selection:
+Y - Single Parent",VARCHAR,1
+HHNBRSR,Total number of individuals in a given household whose known birth year indicates an age of 65 or greater,Y - Individuals in household 65 years and older,VARCHAR,1
+HHNBR,Total number of adult individuals in a given household,Number of adult individuals in household,INTEGER,1
+SPANISHSPCD,Indicates an individual who has reported speaking Spanish in their home. Data is applied at the individual level and is sourced from self-reported survey and modeled data.,Y - Speaks Spanish at Home,VARCHAR,1
+SOHOCD,Indicates an individual owns a small business or has a home office at this address,Y - SOHO (Small Office Home Office) Indicator,VARCHAR,1
+VETERANCD,Compilation of signals and self reported data indicating an individual within the household has served or is serving in the armed forces,Y - Veteran in Household,VARCHAR,1
+CREDITCARD,Indicator that an individual has used a credit card for purchases of goods and services,"Known use of Credit Card for purchases:
+Y - Credit Card",VARCHAR,1
+WEALTHSCR,"*DO NOT USE* This field was formally retired and all values were nulled with the October 25, 2024 release. Please use WEALTHSCR_V2 (Field #345)","*DO NOT USE* New Wealth Score field available as of March 20, 2024 Release - See Field #345 WEALTHSCR_V2",VARCHAR,1
+CHARITYDNR,Known donor to charitable causes received from self-reported and other transactional sources,Y - Donor,VARCHAR,1
+MRKTHOMEVAL,Estimated market value of home as indicated by County Tax Assesor and deed records. The Home Market Value indicates the relative Home Market Value as compared to all of the homes within the same county. This data is applied at the address level.,"Estimated Home Market Value (Assessor-based Model):
+A - $1,000 - $24,999
+B - $25,000 - $49,999
+C - $50,000 - $74,999
+D - $75,000 - $99,999
+E - $100,000 - $124,999
+F - $125,000 - $149,999
+G - $150,000 - $174,999
+H - $175,000 - $199,999
+I - $200,000 - $224,999
+J - $225,000 - $249,999
+K - $250,000 - $274,999
+L - $275,000 - $299,999
+M - $300,000 - $349,999
+N - $350,000 - $399,999
+O - $400,000 - $449,999
+P - $450,000 - $499,999
+Q - $500,000 - $749,999
+R - $750,000 - $999,999
+S - $1,000,000+",VARCHAR,1
+EDUCATIONCD,Education is defined as the level of education completed by the consumer. This is a probabilistic attribute based on self-reported information and surveys.,"Education Attainment Code:
+A - Completed High School
+B - Completed College
+C - Completed Graduate School
+D - Attended Vocational/Technical                                                       E - Some High School                                                                             F - Some College",VARCHAR,1
+OCCUPATIONCD,"*DO NOT USE* This field was formally retired and all values were nulled with the February 20, 2024 release. Please use OCCUPATIONCD_V2 (Field #344).","*DO NOT USE* New Occupation field available as of June 20, 2023 Release - See Field #344 OCCUPATIONCD_V2",VARCHAR,1
+ETHNICITYCD,"*DO NOT USE* This field was formally retired and all values were nulled with the May 25, 2024 release. Geo-demographic ethnicity/race variables available (Fields #319-326).","*DO NOT USE* Due to multi-state Sensitive Personal Information requirements individual-level Ethnicity data is no longer available as of May 25, 2024 release. Geo-demographic ethnicity/race variables (Fields #319-326) are still available.",VARCHAR,1
+RELIGIONCD,"*DO NOT USE* This field was formally retired and all values were nulled with the May 25, 2024 release.","*DO NOT USE* Due to multi-state Sensitive Personal Information requirements individual-level Religion data is no longer available as of May 25, 2024 release.",VARCHAR,1
+LANGUAGECD,Languages spoken by an individual as provided by self reported participants and overlays from participating source data,See tab - Demo Codes - Language,VARCHAR,2
+CHILD,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.",Y - Presence of Children,VARCHAR,1
+CHILDAGECD_6,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.",Presence of Children under 6,VARCHAR,1
+CHILDAGECD_6_10,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.",Presence of Children Aged 6 - 10,VARCHAR,1
+CHILDAGECD_11_15,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.",Presence of Children Aged 11 - 15,VARCHAR,1
+CHILDAGECD_16_17,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.",Presence of Children Aged 16 - 17,VARCHAR,1
+CHILDNBRCD,"The presence of children, children's age ranges and number of children selections reflects the probable presence of children under age 18 in a given household. Information is sourced from children's age and gender data which is gathered from a variety of sources that includes public records where they may be available, survey data as well as modeled Census based information.","Number of Children Code:
+A - No Children
+B - Less Than 3
+C - 3 - 5
+D - 6+",VARCHAR,1
+YRBLD,Year dwelling was built based on real estate transaction and deed records from County Assessor or County Recorder offices,The year home was built according to real estate data - YYYY,VARCHAR,4
+MOBHOMECD,Residence is a mobile home as indicated by real estate transaction and deed records from County Assessor or County Recorder offices,Y - Mobile Home,VARCHAR,1
+POOL,Residence has a pool as indicated by real estate transaction and deed records from County Assessor or County Recorder offices,Y - Pool Owner,VARCHAR,1
+FIREPLCD,Residence has a fireplace as indicated by real estate transaction and deed records from County Assessor or County Recorder offices,Y - Home with Fireplace,VARCHAR,1
+MS_ACCESSORY,"Includes shoes, purses, belts, etc.",Accessory,INTEGER,2
+MS_APPAREL,"Includes the purchase of clothing. MS_ACCESSORY, MS_KIDAPP, MS_MENAPP, and MS_WOMAPP are included in the overall MS_APPAREL variable.",Apparel,INTEGER,2
+MS_AUDIO,Includes purchases related to audio equipment.,Audio,INTEGER,2
+MS_AUTO,Includes purchases related to Cars/Trucks,Automotive,INTEGER,2
+MS_AVIATION,Includes purchases of aviation related items.,Aviation,INTEGER,2
+MS_BARGAINS,"Includes purchases of low-cost or on-sale products from catalogs, retail and websites",Bargain Seekers,INTEGER,2
+MS_BIBLE,Includes purchases of religious items,Bible,INTEGER,2
+MS_BOATSAIL,"Includes boating, sailing, canoeing, kayaking, water skiing, rafting, etc",Boating/Sailing,INTEGER,2
+MS_BOOKS,Number of distinct book company participants.,Books,INTEGER,2
+MS_BUSINESS,"Includes business news, and/or products usually associated with running a business or a career or operating an office",Business,INTEGER,2
+MS_CAMP,Includes camping and hiking,Camping,INTEGER,2
+MS_CATALOG,Number of different catalogs ordered from.,Catalog,INTEGER,2
+MS_COLLECTIBLES,"Includes dolls, coins, stamps, stuffed animals, plates, memorabilia, etc.",Collectibles,INTEGER,2
+MS_COMPUTERS,"Includes Computers, software and computer accessories",Computers,INTEGER,2
+MS_COOKING,"Includes recipes, cooking utensils and food products",Cooking,INTEGER,2
+MS_BEAUTY,Includes purchases of Beauty & Cosmetic items,Cosmetics/Beauty Products,INTEGER,2
+MS_CRAFTS,"Includes crochet, sewing, knitting, needlepoint, quilting, jewelry, ceramics, painting, etc.",Crafts,INTEGER,2
+MS_CULTUREARTS,"Includes art, antiques, opera, museums, the theatre, etc.",Culture Arts,INTEGER,2
+MS_CURREVENT,"Includes periodicals, news magazines, websites & blogs",Current Events,INTEGER,2
+MS_DIY,"Includes home improvements and construction, wood working, auto repair, etc.",Do It Yourself,INTEGER,2
+MS_ELECTRONICS,"Includes home and auto stereos, video equipment, etc. Does not include computers.",Electronics,INTEGER,2
+MS_EQUESTRIAN,Includes purchases related to horses/horse riding,Equestrian,INTEGER,2
+MS_FAMILY,Includes products designed for families with children.,Family,INTEGER,2
+MS_FICTION,Include books & magazines of fiction,Fiction,INTEGER,2
+MS_FISHING,Include fishing paraphenalia as well as books & publications related to fishings,Fishing,INTEGER,2
+MS_FITNESS,"Includes purchases of fitness equipment, clothing, accessories as well as subscribers to publications and books.",Fitness,INTEGER,2
+MS_FOOD,Includes purchases of any food item,Food And Drink,INTEGER,2
+MS_FUNDRAISING,Number of different charitable organizations to which a donation was made.,Fundraising,INTEGER,2
+MS_GAMES,"Includes computer games, traditional board games, puzzles, etc.",Games,INTEGER,2
+MS_GARDEN,"Includes purchases of gardening products, plants, seeds, books etc. Also includes subscribers to gardening publications",Gardening,INTEGER,2
+MS_MERCHANDISE,Includes catalog items not classified under any other affinity.,General Merchandise,INTEGER,2
+MS_GIFTGIVR,Number of orders that were given as gifts.,Gift Giver,INTEGER,2
+MS_GIFTEE,Number of orders that were received as gifts.,Giftee,INTEGER,2
+MS_GIFTS,Includes products usually given as gifts.,Gifts,INTEGER,2
+MS_GOURMET,"Includes upscale products, and fine foods, wines, and other expensive items.",Gourmet,INTEGER,2
+MS_HEALTH,MS_FITNESS is included in MS_HEALTH. Also includes health related items which are not fitness,Health,INTEGER,2
+MS_HISTORY,Includes purchases of books/publications related to history,History,INTEGER,2
+MS_HOLIDAY,"Includes items related to the holidays, usually Christmas.",Holiday,INTEGER,2
+MS_HOMEDECR,"Includes furniture as well as other home décor items such as rugs, vases, pictures etc.",Home Decorating/Furnishings,INTEGER,2
+MS_HOMELIV,"MS_CAT_HOMELIV, MS_PUB_HOMELIV, MS_HOMEDECR, MS_PUB_HOMEDECR, MS_CAT_HOMEDECR, MS_CAT_GARDEN, MS_COOKING, MS_PUB_COOKING, MS_GARDEN, MS_PUB_GARDEN, and MS_HOUSEWARES",Home Living,INTEGER,2
+MS_HOUSEWARES,Includes housewares excluding large appliance purchases,Housewares,INTEGER,2
+MS_HUMOR,"Includes comic books and strips, cartoons, comedies, etc.",Humor/Comics,INTEGER,2
+MS_HUNTING,"Includes purchases of all types of hunting related items (including rifles, bows etc) as well as subscribers to hunting publications",Hunting,INTEGER,2
+MS_INSPIRATION,"Includes non-religious products, such as new age products, astrology, etc.",Inspiration,INTEGER,2
+MS_KIDAPP,Includes all types of children's apparel,Kids Apparel,INTEGER,2
+MS_MAGS,Number of distinct participating magazine titles.,Magazines,INTEGER,2
+MS_MENAPP,Includes all types of men's apparel,Men's Apparel,INTEGER,2
+MS_MOTORCYCLES,Includes all types of motorcycles/motorcycle related products and subscriptions to motorcycle publications,Motorcycles,INTEGER,2
+MS_MUSIC,"Includes music, music playing equipment, and musical instruments.",Music,INTEGER,2
+MS_MONEYMAKING,"Includes moneymaking opportunities, usually of the get-rich-quick nature.",Op Seekers,INTEGER,2
+MS_OUTDOORS,"MS_BOATSAIL, MS_CAMP, MS_FISHING, and MS_HUNTING are included in MS_OUTDOORS.",Outdoors,INTEGER,2
+MS_PFIN,Includes all types of personal finance (including magazines),Personal Finance,INTEGER,2
+MS_PETS,Includes purchase of all types of pet products including cats and dogs,Pets,INTEGER,2
+MS_PHOTOPROC,Includes companies that offer film processed via the mail or the Internet.,Photo Processing,INTEGER,2
+MS_PHOTO,Includes products/magazines related to photography,Photography,INTEGER,2
+MS_PUBLISH,"Number of distinct publishing participants, counting individual magazines and book companies",Publish,INTEGER,2
+MS_PUB_COOKING,Includes all types of cooking publications & books,Publish Cooking,INTEGER,2
+MS_PUB_FAMILY,Includes all types of family/children publications & books,Publish Family,INTEGER,2
+MS_PUB_GARDEN,Includes all types of gardening publications & books,Publish Gardening,INTEGER,2
+MS_PUB_GIFTGIVR,Indicates number of magazine subscriptions given as a gift,Publish Gift Giver,INTEGER,2
+MS_PUB_GIFTEE,Indicates number of magazine subscriptions or book orders received as a Gift.,Publish Giftee,INTEGER,2
+MS_PUB_HOMEDECR,Includes all types of publications & books related to home décor and furninishings,Publish Home Decorating/Furnishings,INTEGER,2
+MS_PUB_HOMELIV,Includes all types of publications & books related to home living,Publish Home Living,INTEGER,2
+MS_PUB_OUTDOORS,"Includes all types of publications & books related to outdoors (includes hunting, fishing, camping, hiking, some watersports)",Publish Outdoors,INTEGER,2
+MS_SCIENCE,"Includes products, magazines & books related to science",Science,INTEGER,2
+MS_SPORTS,"Includes products, magazines & books related to sports",Sports,INTEGER,2
+MS_TRAVEL,"Includes products, magazines & books related traveling & vacations",Travel,INTEGER,2
+MS_TVMOVIES,"Includes purchases of videos, subscribers to streaming services as well as magazine subscribers",Tv/Movies/Video,INTEGER,2
+MS_WILDLIFE,Includes purchasers of products related to Wildlife and the environment as well as donors & magazine subscribers,Wildlife/Environment,INTEGER,2
+MS_WOMAN,Includes generic women’s publications.,Woman,INTEGER,2
+MS_WOMAPP,Includes all types of women's apparel,Women's Apparel,INTEGER,2
+MS_WOMFASH,Includes publications related to women’s fashion.,Women's Fashion,INTEGER,2
+CPI_HISTORY_AMERICAN_INDEX,"Interested specifically in American History, patriotic themes, and/or veteran’s issues. Included in CPI_HISTORY_INDEX.",Cpi American History Index: 9-0,INTEGER,1
+CPI_APPAREL_INDEX,"Interested in or purchasers of Apparel or fashion. Includes the CPI_APPAREL_ACCESSORIES, CPI_APPAREL_KIDS, CPI_APPAREL_MEN, CPI_APPAREL_MENFASH, CPI_APPAREL_WOMEN, CPI_APPAREL_WOMFASH indices below.",Cpi Apparel Index: 9-0,INTEGER,1
+CPI_APPAREL_ACCESSORY_INDEX,"Interested in or purchaseres of shoes, purses, belts, etc. Included in CPI_APPAREL_INDEX.",Cpi Apparel/Accessories Index: 9-0,INTEGER,1
+CPI_APPAREL_KIDS_INDEX,Interested in or purchasers of children’s apparel via direct marketing channels. Included in CPI_APPAREL_INDEX.,Cpi Apparel/Children's Apparel Index: 9-0,INTEGER,1
+CPI_APPAREL_MEN_INDEX,Interested in or purchasers of men’s apparel . Included in CPI_APPAREL_INDEX.,Cpi Apparel/Men's Apparel Index: 9-0,INTEGER,1
+CPI_APPAREL_MENFASH_INDEX,Interested in or purchasers of men’s fashion. Included in CPI_APPAREL_INDEX.,Cpi Apparel/Mens Fashion Index: 9-0,INTEGER,1
+CPI_APPAREL_WOMEN_INDEX,Interested in or purchasers of women’s apparel via direct marketing channels. Included in CPI_APPAREL_INDEX.,Cpi Apparel/Women's Apparel Index: 9-0,INTEGER,1
+CPI_APPAREL_WOMFASH_INDEX,Interested in or purchasers of women’s fashion. Included in CPI_APPAREL_INDEX.,Cpi Apparel/Womens Fashion Index: 9-0,INTEGER,1
+CPI_INSURANCE_AUTO_INDEX,Interested in purchasing Automobile Insurance,Cpi Auto Insurance: 9-0,INTEGER,1
+CPI_AUTO_TRUCKS_INDEX,Interested specifically in trucks (excluding SUVs). Included in CPI_AUTO_INDEX.,Cpi Auto/Trucks Index: 9-0,INTEGER,1
+CPI_AUTO_INDEX,"Interested in anything automobile-related, such as auto parts and tools, restoration, performance, general and make/model specific enthusiast products, etc. Includes CPI_AUTO_RACING and CPI_AUTO_TRUCKS indices.",Cpi Automotive Index: 9-0,INTEGER,1
+CPI_AVIATION_INDEX,Interested in airplanes and other things that really fly and can transport things and people. Does not include toy planes.,Cpi Aviation Index: 9-0,INTEGER,1
+CPI_BARGAINS_INDEX,"Interested in saving money, including coupons, low-cost stores and discount clubs, money-saving sales, rewards programs, auction websites, free stuff, etc. we",Cpi Bargain Seekers Index: 9-0,INTEGER,1
+CPI_BEAUTY_INDEX,"Interested in beauty-related products, including cosmetics, treatments, etc.",Cpi Beauty Index: 9-0,INTEGER,1
+CPI_BIBLE_INDEX,"Interested in religion, church-going, bible-oriented products, and the spiritual.",Cpi Bible/Devotional Index: 9-0,INTEGER,1
+CPI_PUBLISH_BOOKS_INDEX,"Known to have purchased a book via direct marketing channels. Included in CPI_PUBLISH_INDEX. Includes CPI_NONFICTION, CPI_FICTION, and CPI_SCIFI passions.",Cpi Book Buyer Index: 9-0,INTEGER,1
+CPI_BUSINESS_INDEX,"Interested in business news, career, and/or products usually associated with running a business. Includes CPI__BUSINESS_HOMEOFFICE index.",Cpi Business Index: 9-0,INTEGER,1
+CPI_BUSINESS_HOMEOFFICE_INDEX,Indication that the person has a Home Office. Included in CPI_BUSINESS_INDEX.,Cpi Business/Home Office Index: 9-0,INTEGER,1
+CPI_CATALOG_INDEX,Has purchased from a catalog.,Cpi Catalog Index: 9-0,INTEGER,1
+CPI_DONOR_INDEX,Has a known history of donating to charitable causes.,Cpi Charitable Donor Index: 9-0,INTEGER,1
+CPI_FAMILY_INDEX,"Household with at least one child under 13, based on the presence of children and/or the purchase of children’s related products. Includes both CPI_FAMILY_TEEN_INDEX and CPI_FAMILY_YOUNG_INDEX.",Cpi Children/Family Index: 9-0,INTEGER,1
+CPI_FAMILY_TEEN_INDEX,"Those known to live in a family (i.e., adults and children) household with at least one teenager, based on based the presence of children and/or the purchase of teen-related products. Included in CPI_FAMILY_INDEX.",Cpi Children/Family Teen Index: 9-0,INTEGER,1
+CPI_FAMILY_YOUNG_INDEX,"Those known to live in a family (i.e., adults and children) household with at least one child under , based on the presence of children and/or the purchase of younger children’s related products. Included in CPI_FAMILY_INDEX.",Cpi Children/Family Young Index: 9-0,INTEGER,1
+CPI_COLLECTIBLES_INDEX,"Interested in collectibles, including dolls, coins, stamps, stuffed animals, plates, memorabilia, etc.",Cpi Collectibles Index: 9-0,INTEGER,1
+CPI_COLLEGE_INDEX,Interested in colleges and universities as an alumni.,Cpi College Index: 9-0,INTEGER,1
+CPI_COMPUTERS_INDEX,Interested in computers and products used with computers.,Cpi Computers Index: 9-0,INTEGER,1
+CPI_CONTINUITY_INDEX,Purchased a product offered via continuity.,Cpi Continuity Buyer Index: 9-0,INTEGER,1
+CPI_COOKING_INDEX,"Interested in cooking, baking, and all things culinary, including recipes and cooking equipment. Included in CPI_HOMELIV_INDEX.",Cpi Cooking Index: 9-0,INTEGER,1
+CPI_CRAFTS_INDEX,"Covers all crafts, including crochet, sewing, knitting, needlepoint, quilting, jewelry, ceramics, painting, etc. Includes the CPI_CRAFTS_CROCHET, CPI_CRAFTS_KNIT, CPI_CRAFTS_NEEDLEPOINT, CPI_CRAFTS_QUILT, CPI_CRAFTS_SEW passions listed below.",Cpi Crafts Index: 9-0,INTEGER,1
+CPI_CRAFTS_CROCHET_INDEX,Interested in crocheting. Included in CPI_CRAFTS Index,Cpi Crafts/Crochet Index: 9-0,INTEGER,1
+CPI_CRAFTS_KNIT_INDEX,Interested in knititing. Included in CPI_CRAFTS Index,Cpi Crafts/Knitting Index: 9-0,INTEGER,1
+CPI_CRAFTS_NEEDLEPOINT_INDEX,Interested in needlepoint. Included in CPI_CRAFTS Index,Cpi Crafts/Needlepoint Index: 9-0,INTEGER,1
+CPI_CRAFTS_QUILT_INDEX,Interested in quilting. Included in CPI_CRAFTS Index,Cpi Crafts/Quilting Index: 9-0,INTEGER,1
+CPI_CRAFTS_SEW_INDEX,Interested in the sewing craft. Included in CPI_CRAFTS_INDEX.,Cpi Crafts/Sewing Index: 9-0,INTEGER,1
+CPI_CC_INDEX,Has used a credit card to make a purchase,Cpi Credit Card User Index: 9-0,INTEGER,1
+CPI_CREDIT_REPAIR_INDEX,Interested in repairing their credit,Cpi Credit Repair: 9-0,INTEGER,1
+CPI_CREDIT_REPORT_INDEX,Have purchased or obtained a copy of their credit report,Cpi Credit Report: 9-0,INTEGER,1
+CPI_CULTUREARTS_INDEX,"Interested in culture and the arts, including art, antiques, opera, museums, the theatre, etc.",Cpi Culture/Arts Index: 9-0,INTEGER,1
+CPI_CURREVENT_INDEX,Interested in the news and politics.,Cpi Current Events Index: 9-0,INTEGER,1
+CPI_DIY_INDEX,"Interested in Do It Yourself projects, including home improvements and construction, wood working, auto repair, etc.",Cpi Do It Yourself Index: 9-0,INTEGER,1
+CPI_EDUCATION_SEEKERS_INDEX,"Interested in furthering their education including online schools, brick and mortar schools and trade schools",Cpi Education Seekers: 9-0,INTEGER,1
+CPI_ELECTRONICS_INDEX,"Interested in electronics, such as home and auto stereos, video equipment, etc. Does not include computers.",Cpi Electronics Index: 9-0,INTEGER,1
+CPI_FICTION_INDEX,Interested in fiction books. Included in CPI_PUBLISH_INDEX and CPI_PUBLISH_BOOKS_INDEX.,Cpi Fiction Index: 9-0,INTEGER,1
+CPI_GAMBLING_INDEX,"Interested in games of chance, including casino gambling and lotteries.",Cpi Gambling Index: 9-0,INTEGER,1
+CPI_GAMES_INDEX,"Interested in a variety of games, including computer games, traditional board games, puzzles, etc.",Cpi Games Index: 9-0,INTEGER,1
+CPI_GARDENING_INDEX,"Interested in gardening and plants, both indoors and outdoors, decorative and edible. Included in CPI_HOMELIV_INDEX.",Cpi Gardening/Flowers Index: 9-0,INTEGER,1
+CPI_GIFTGIVR_INDEX,Has been known to purchase gifts for others via a direct marketing channel.,Cpi Gift Giver Index: 9-0,INTEGER,1
+CPI_GOURMET_INDEX,"Interested in gourmet and upscale products, such as fine foods, wines, and other expensive items.",Cpi Gourmet Foods/Cooking Index: 9-0,INTEGER,1
+CPI_HEALTH_INDEX,Interested in one’s health and/or self-improvement. Includes HEALTH_DIET and HEALTH_FITNESS indices below.,Cpi Health Index: 9-0,INTEGER,1
+CPI_INSURANCE_HEALTH_INDEX,Interested in purchasing Health Insurance,Cpi Health Insurance: 9-0,INTEGER,1
+CPI_HEALTH_DIET_INDEX,Interested in weight control or losing weight. Included in CPI_HEALTH_INDEX.,Cpi Health/Diet Index: 9-0,INTEGER,1
+CPI_HEALTH_FITNESS_INDEX,"Interested in physical fitness and exercise, including running, biking, walking, weight lifting, aerobics, etc. Included in CPI_HEALTH_INDEX.",Cpi Health/Fitness & Exercise Index: 9-0,INTEGER,1
+CPI_HIGHTECH_INDEX,"Interested in new and/or relatively rare high technology electronic products, such as HDTV’s, digital video cameras, digital video recorders, satellite radio, pagers, home fax machines, plasma TVs, etc. This is a moving target as products become more accepted and as new products are invented.",Cpi High Tech Enthusiast Index: 9-0,INTEGER,1
+CPI_HISPANIC_INDEX,"Race indicated as Hispanic, speaks Spanish, and/or interested in Hispanic-oriented products.",Cpi Hispanic Index: 9-0,INTEGER,1
+CPI_HISTORY_INDEX,Interested in History. Includes CPI_HISTORY_AMERICAN index.,Cpi History Index: 9-0,INTEGER,1
+CPI_HOBBIES_INDEX,Interested in unspecified hobbies or in various hobbies not included in other passions.,Cpi Hobbies Index: 9-0,INTEGER,1
+CPI_HOMEDECR_INDEX,"Interested in Home Decorating, such as furnishings, wall and window treatments, layouts, etc. Included in CPI_HOMELIV_INDEX.",Cpi Home Decorating/Furnishings Index: 9-0,INTEGER,1
+CPI_HOMELIV_INDEX,"Interested in things related to the home. These include the CPI_COOKING, CPI_GARDENING, and CPI_HOMEDECR passions listed below, but also include house wares, linens, and the like.",Cpi Home Living Index: 9-0,INTEGER,1
+CPI_EQUESTRIAN_INDEX,Interested in horses and riding.,Cpi Horses Index: 9-0,INTEGER,1
+CPI_INSPIRATION_INDEX,"Interested in non-religious inspiration, including new age products, astrology, etc.",Cpi Inspirational Index: 9-0,INTEGER,1
+CPI_INSURANCE_INDEX,"Interested in purchasing insurance (includes Life, Health & Auto)",Cpi Insurance: 9-0,INTEGER,1
+CPI_INTERNET_ACCESS_INDEX,Known only to have internet access; does not necessarily include an internet purchase. Included in CPI_INTERNET_INDEX.,Cpi Internet Access Index: 9-0,INTEGER,1
+CPI_INTERNET_BUY_INDEX,Known to have purchased a product via the internet. Included in CPI_INTERNET_INDEX.,Cpi Internet Buyer Index: 9-0,INTEGER,1
+CPI_INTERNET_INDEX,Known to be on the internet. Includes the INTERNET_ACCESS and INTERNET_BUY passions.,Cpi Internet Index: 9-0,INTEGER,1
+CPI_JOB_SEEKERS_INDEX,Users of online job searching sites,Cpi Job Seekers: 9-0,INTEGER,1
+CPI_PUBLISH_MAGS_INDEX,Known to have purchased a magazine via direct marketing channels. Included in CPI_PUBLISH_INDEX.,Cpi Magazine Subscriber Index: 9-0,INTEGER,1
+CPI_PUBLISH_INDEX,Known to have purchased a book or magazine via direct marketing channels. Includes CPI_PUBLISH_MAGS and CPI_PUBLISH_BOOKS passions.,Cpi Magazine/Book Buyer Index: 9-0,INTEGER,1
+CPI_MOBILE_APPS_INDEX,Have purchased a ring tone or app for a mobile device,Cpi Mobile Apps/Ringtones: 9-0,INTEGER,1
+CPI_MOTORCYCLES_INDEX,Interested in motorcycles and ATVs.,Cpi Motorcycles Index: 9-0,INTEGER,1
+CPI_MUSIC_INDEX,Interested in music and/or music playing equipment.,Cpi Music Index: 9-0,INTEGER,1
+CPI_NONFICTION_INDEX,Interested in non-fiction books. Included in CPI_PUBLISH_INDEX and CPI_PUBLISH_BOOKS_INDEX.,Cpi Nonfiction Index: 9-0,INTEGER,1
+CPI_MONEYMAKING_INDEX,"Interested in moneymaking opportunities, usually of the get-rich- quick nature.",Cpi Op Seekers Index: 9-0,INTEGER,1
+CPI_OUTDOORS_INDEX,"Interested in outdoor, sportsman-type activities. Includes the CPI_OUTDOORS_BOATSAIL, CPI_OUTDOORS_CAMP, CPI_OUTDOORS_FISHING, CPI_OUTDOORS_HUNTING, and CPI_OUTDOORS_HUNTFISH passions listed below.",Cpi Outdoor Sports Index: 9-0,INTEGER,1
+CPI_OUTDOORS_BOATSAIL_INDEX,"Interested in boating, sailing, canoeing, kayaking, water skiing, rafting, etc. Included in CPI_OUTDOORS_INDEX.",Cpi Outdoors/Boating & Sailing Index: 9-0,INTEGER,1
+CPI_OUTDOORS_CAMP_INDEX,"Interested in camping, hiking, climbing, etc. Included in CPI_OUTDOORS_INDEX.",Cpi Outdoors/Camping & Hiking Index: 9-0,INTEGER,1
+CPI_OUTDOORS_FISHING_INDEX,"Interested specifically in fishing, saltwater and/or freshwater. Included in CPI_OUTDOORS_INDEX.",Cpi Outdoors/Fishing Index: 9-0,INTEGER,1
+CPI_OUTDOORS_HUNTING_INDEX,Interested specifically in hunting or guns. Included in CPI_OUTDOORS_INDEX.,Cpi Outdoors/Hunting Index: 9-0,INTEGER,1
+CPI_OUTDOORS_HUNTFISH_INDEX,"Interested in hunting and/or fishing. Source data covers both (general sportsman activities), not specific to one or the other. Included in CPI_OUTDOORS_INDEX.",Cpi Outdoors/Hunting Or Fishing Index: 9-0,INTEGER,1
+CPI_PFIN_INDEX,"Interested in personal finance, investments, retirement planning, etc.",Cpi Personal Finance Index: 9-0,INTEGER,1
+CPI_EGO_INDEX,"Interested in personalized products, such as monograms.",Cpi Personalized Index: 9-0,INTEGER,1
+CPI_PETS_INDEX,"Interested in or an owner of pets, mostly dogs and cat. Includes the CPI_PETS_CATS and CPI_PETS_DOGS passions below.",Cpi Pets Index: 9-0,INTEGER,1
+CPI_PETS_CATS_INDEX,Interested in or an owner of cats. Included in CPI_PETS_INDEX.,Cpi Pets/Cats Index: 9-0,INTEGER,1
+CPI_PETS_DOGS_INDEX,Interested in or an owner of dogs. Included in CPI_PETS_INDEX.,Cpi Pets/Dogs Index: 9-0,INTEGER,1
+CPI_PHOTOPROC_INDEX,Known to have had film processed via the mail or the internet.,Cpi Photo Processing Index: 9-0,INTEGER,1
+CPI_PHOTOG_INDEX,Interested in photography.,Cpi Photography Index: 9-0,INTEGER,1
+CPI_CONSERVATIVE_INDEX,Expressed a preference for a conservative political point of view or party.,Cpi Politically Conservative Index: 9-0,INTEGER,1
+CPI_LIBERAL_INDEX,Expressed a preference for a liberal political point of view or party.,Cpi Politically Liberal Index: 9-0,INTEGER,1
+CPI_SOCIAL_NETWORKING_INDEX,"Users of online social networking services such as Facebook, Twitter etc.",Cpi Social Networking: 9-0,INTEGER,1
+CPI_SPORTS_INDEX,"Interested in sports, mostly spectator and/or paraphernalia purchaser, but includes participation. Includes the CPI_SPORTS_BASEBALL, CPI_SPORTS_BASKETBALL, CPI_SPORTS_FOOTBALL, CPI_SPORTS_GOLF, CPI_SPORTS_HOCKEY, CPI_SPORTS_SKIING, CPI_SPORTS_SOCCER and CPI_SPORTS_TENNIS passions below.",Cpi Sports Index: 9-0,INTEGER,1
+CPI_SPORTS_BASEBALL_INDEX,"Interested in the specific sport of Baseball as a spectator, paraphernalia purchaser and/or participant.",Cpi Sports/Baseball Index: 9-0,INTEGER,1
+CPI_SPORTS_BASKETBALL_INDEX,Interested in Basketball,Cpi Sports/Basketball Index: 9-0,INTEGER,1
+CPI_SPORTS_BIKING_INDEX,Interested in Biking,Cpi Sports/Biking Index: 9-0,INTEGER,1
+CPI_SPORTS_FOOTBALL_INDEX,Interested in Football,Cpi Sports/Football Index: 9-0,INTEGER,1
+CPI_SPORTS_GOLF_INDEX,Interested in Golf,Cpi Sports/Golf Index: 9-0,INTEGER,1
+CPI_SPORTS_HOCKEY_INDEX,Interested in Hockey,Cpi Sports/Hockey Index: 9-0,INTEGER,1
+CPI_SPORTS_RUNNING_INDEX,Interested in Running,Cpi Sports/Running Index: 9-0,INTEGER,1
+CPI_SPORTS_SKI_INDEX,Interested in Skiing,Cpi Sports/Ski Index: 9-0,INTEGER,1
+CPI_SPORTS_SOCCER_INDEX,Interested in Soccer,Cpi Sports/Soccer Index: 9-0,INTEGER,1
+CPI_SPORTS_SWIMMING_INDEX,Interested in Swimming,Cpi Sports/Swimming Index: 9-0,INTEGER,1
+CPI_SPORTS_TENNIS_INDEX,Interested in Tennis,Cpi Sports/Tennis Index: 9-0,INTEGER,1
+CPI_SWEEPS_INDEX,Interested in offers utilizing sweepstakes.,Cpi Sweepstakes Index: 9-0,INTEGER,1
+CPI_TRAVEL_INDEX,"Interested in traveling. Includes the CPI_TRAVEL_CRUISE, CPI_TRAVEL_RV and CPI_TRAVEL_US passions.",Cpi Travel Index: 9-0,INTEGER,1
+CPI_TRAVEL_CRUISE_INDEX,Interested in boat cruises. Included in CPI_TRAVEL_INDEX.,Cpi Travel/Cruises Index: 9-0,INTEGER,1
+CPI_TRAVEL_RV_INDEX,Interested in recreational vehicles or known to own one. Included in CPI_TRAVEL_INDEX.,Cpi Travel/Recr Vehicles Index: 9-0,INTEGER,1
+CPI_TRAVEL_US_INDEX,Interested in travel within the US. Included in CPI_TRAVEL_INDEX.,Cpi Travel/Us Index: 9-0,INTEGER,1
+CPI_TVMOVIES_INDEX,"Interested in television, movies, videos, DVDs, etc.",Cpi Tv/Movies/Video Index: 9-0,INTEGER,1
+CPI_WILDLIFE_INDEX,Interested in the environment and/or wildlife.,Cpi Wildlife/Environment Index: 9-0,INTEGER,1
+HHCLSTRDCD,See tab - Connex Household Clusters,See tab - Connex Household Clusters,VARCHAR,3
+NEIGHBORHOOD_CLSTRDCD,See tab - Connex Neighborhood Clusters,See tab - Connex Neighborhood Clusters,VARCHAR,3
+FMCLSTRDCD,See tab - Connex Family Clusters,See tab - Connex Family Clusters,VARCHAR,3
+MESSAGING_CLSTRDCD,See tab - Connex Messaging Clusters,See tab - Connex Messaging Clusters,VARCHAR,3
+DIGITALCLSTRDCD,See tab - Connex Digital Clusters,See tab - Connex Digital Clusters,VARCHAR,3
+GENERATION_CLSTRDCD,See tab - Connex Generation Clusters,See tab - Connex Generation Clusters,VARCHAR,3
+GENERATION_GRPCD,See tab - Connex Generation Groups,See tab - Connex Generation Groups,VARCHAR,3
+LIFESTG_CLSTRD,See tab - Connex Life Stage Clusters,See tab - Connex Life Stage Clusters,VARCHAR,3
+LIFESTG_GRPCD,See tab - Connex Life Stage Groups,See tab - Connex Life Stage Groups,VARCHAR,3
+CT_MEDIA_HEAVYUSAGE_MAGAZINE,,Y - Frequent reader of magazines,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_NEWSPAPER,,Y - Frequent reader of newspapers,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_RADIO,,Y - Frequent listener to radio,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_PTRADIO,,Y - Frequent listener to radio primetime,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_TV,,Y - Frequent watcher of television,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_INTERNET,,Y - Frequent user of internet,VARCHAR,1
+CT_MEDIA_HEAVYUSAGE_ODRMDA,,Y - Frequent reader of outdoor media,VARCHAR,1
+CT_SOCIALUSAGE30_FB,,"Y - Facebook Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_SOCIALUSAGE30_INSTA,,"Y - Instagram Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_SOCIALUSAGE30_LNKIN,,"Y - Linkedin Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_SOCIALUSAGE30_PINT,,"Y - Pinterest Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_SOCIALUSAGE30_TWITTER,,"Y - Twitter Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_SOCIALUSAGE30_YOUTUBE,,"Y - Youtube Social media, photo or video-sharing services visited or used in the last 30 days",VARCHAR,1
+CT_STRMSUB_PRIME,,Y - Subscribes to Prime Video for streaming video services,VARCHAR,1
+CT_STRMSUB_HULU,,Y - Subscribes to Hulu for streaming video services,VARCHAR,1
+CT_STRMSUB_NETFLIX,,Y - Subscribes to Netflix for streaming video services,VARCHAR,1
+CT_SMRTPHN_TYPEOWNS_ANDROID,,Y - Owns an Android smartphone (any brand),VARCHAR,1
+CT_SMRTPHN_TYPEOWNS_IPHONE,,Y - Owns an Apple iPhone smartphone,VARCHAR,1
+CT_HOMEIMPROVE12_ANY,,Y - Made improvements to home,VARCHAR,1
+CT_HOMEREMODEL12_ANY,,Y - Home Remodeling - Summary: Any: In last 12 months,VARCHAR,1
+CT_POLITICAL_PARTYAFF_DEMOCRAT,,Y - Democratic political affiliation,VARCHAR,1
+CT_POLITICAL_PARTYAFF_GOP,,Y - Republican political affiliation,VARCHAR,1
+CT_POLITICAL_PARTYAFF_IND,,Y - Independent/no party affiliation,VARCHAR,1
+CT_POLITICAL_OUTLK_VCONSERV,,Y - Political outlook is very conservative,VARCHAR,1
+CT_POLITICAL_OUTLK_SWCONSERV,,Y - Political outlook is somewhat conservative,VARCHAR,1
+CT_POLITICAL_OUTLK_MID,,Y - Political outlook is middle of the road,VARCHAR,1
+CT_POLITICAL_OUTLK_VLIBERAL,,Y - Political outlook is very liberal,VARCHAR,1
+CT_POLITICAL_OUTLK_SWLIBERAL,,Y - Political outlook is somewhat liberal,VARCHAR,1
+CT_ONLINESHOPSEG_OFFLINE,,Y - Online Shoppers Segments: Offline-Only Shoppers,VARCHAR,1
+CT_ONLINESHOPSEG_TRAD,,Y - Online Shoppers Segments: Traditional Consumers,VARCHAR,1
+CT_ONLINESHOPSEG_STRAITFWD,,Y - Online Shoppers Segments: Straightforward Shoppers,VARCHAR,1
+CT_ONLINESHOPSEG_DEALSEEK,,Y - Online Shoppers Segments: Passionate Deal Seekers,VARCHAR,1
+CT_ONLINESHOPSEG_QUALSEEK,,Y - Online Shoppers Segments: Active Quality Seekers,VARCHAR,1
+CT_TECHTUDESEG_PHOBES,,Y - Technology Attitude Segments: Techno-Phobes,VARCHAR,1
+CT_TECHTUDESEG_LAGGRDS,,Y - Technology Attitude Segments: Techno-Laggards,VARCHAR,1
+CT_TECHTUDESEG_XPLOIT,,Y - Technology Attitude Segments: Tech-Sploiters,VARCHAR,1
+CT_TECHTUDESEG_GAMER,,Y - Technology Attitude Segments: Techno-Gamers,VARCHAR,1
+CT_TECHTUDESEG_THUSIAST,,Y - Technology Attitude Segments: Tech-Thusiasts,VARCHAR,1
+CT_TECHTUDESEG_XPLOR,,Y - Technology Attitude Segments: Tech-Splorers,VARCHAR,1
+CT_DNR_CONTRIB_PBS,,Y - Contributed to Public Broadcasting Service (PBS),VARCHAR,1
+CT_DNR_CONTRIB_NPR,,Y - Contributed to National Public Radio (NPR),VARCHAR,1
+CT_DNR_CONTRIB_RELIGIOUS,,Y - Contributed to religious organization(s),VARCHAR,1
+CT_DNR_CONTRIB_ARTS,,Y - Contributed to arts/cultural organization(s),VARCHAR,1
+CT_DNR_CONTRIB_EDU,,Y - Contributed to educational organization(s),VARCHAR,1
+CT_DNR_CONTRIB_ENVIRO,,Y - Contributed to environmental organization(s),VARCHAR,1
+CT_DNR_CONTRIB_HEALTH,,Y - Contributed to health organization(s),VARCHAR,1
+CT_DNR_CONTRIB_POL,,Y - Contributed to political organization(s),VARCHAR,1
+CT_DNR_CONTRIB_SOCSERV,,Y - Contributed to social service organization(s),VARCHAR,1
+CT_DNR_CONTRIB_NONREL,,Y - Contributed to other non-religious organization(s),VARCHAR,1
+CT_DNR_CONTRIBAMT_HIGH,,Y - Contributed $500 or more to organization(s),VARCHAR,1
+CT_VOLUNTEER_CHTYORG,,Y - Volunteered for a charitable organization,VARCHAR,1
+CENSPCT_WATER,Percentage of Water in a given zip code,Census: Pct Water: 0-100,INTEGER,3
+CENS_POP_DENSITY,Population Density per square mile in a given zip code,Census: Pop Density,INTEGER,6
+CENS_HU_DENSITY,Housing Units Density per square mile in a given zip code,Census: Hu Density,INTEGER,6
+CENSPCT_POP_WHITE,Percentage of White population in a given zip code,Census: Pct Pop White: 0-100,INTEGER,3
+CENSPCT_POP_BLACK,Percentage of Black population in a given zip code,Census: Pct Pop Black: 0-100,INTEGER,3
+CENSPCT_POP_AMERIND,Percentage of Amer Indian population in a given zip code,Census: Pct Pop Amer Indian: 0-100,INTEGER,3
+CENSPCT_POP_ASIAN,Percentage of Asian population in a given zip code,Census: Pct Pop Asian: 0-100,INTEGER,3
+CENSPCT_POP_PACISL,Percentage of Pac Islander population in a given zip code,Census: Pct Pop Pac Islander: 0-100,INTEGER,3
+CENSPCT_POP_OTHRACE,Percentage of Other Races population in a given zip code,Census: Pct Pop Othrace: 0-100,INTEGER,3
+CENSPCT_POP_MULTIRACE,Percentage of Multi Race population in a given zip code,Census: Pct Pop Multirace: 0-100,INTEGER,3
+CENSPCT_POP_HISPANIC,Percentage of Hispanic population in a given zip code,Census: Pct Pop Hispanic: 0-100,INTEGER,3
+CENSPCT_POP_AGELT18,Percentage Population Under Age 18 in a given zip code,Census: Pct Pop Age 18: 0-100,INTEGER,3
+CENSPCT_POP_MALES,Percentage Males in a given zip code,Census: Pct Pop Males: 0-100,INTEGER,3
+CENSPCT_ADULT_AGE1824,Percentage Adult Age 18-24 in a given zip code,Census: Pct Adult Age 18-24: 0-100,INTEGER,3
+CENSPCT_ADULT_AGE2534,Percentage Adult Age 25-34 in a given zip code,Census: Pct Adult Age 25-34: 0-100,INTEGER,3
+CENSPCT_ADULT_AGE3544,Percentage Adult Age 35-44 in a given zip code,Census: Pct Adult Age 35-44: 0-100,INTEGER,3
+CENSPCT_ADULT_AGE4554,Percentage Adult Age 45-54 in a given zip code,Census: Pct Adult Age 45-54: 0-100,INTEGER,3
+CENSPCT_ADULT_AGE5564,Percentage Adult Age 55-64 in a given zip code,Census: Pct Adult Age 55-64: 0-100,INTEGER,3
+CENSPCT_ADULT_AGEGE65,Percentage Adult Age 65+ in a given zip code,Census: Pct Adult Age 65+: 0-100,INTEGER,3
+CENS_POP_MEDAGE,Population Median Age in a given zip code,Census: Pop Median Age: 0-100,INTEGER,3
+CENS_HH_AVGSIZE,Average Household Size in a given zip code (not rounded to the nearest whole),Census: Hh Avg Size,INTEGER,10
+CENSPCT_HH_FAMILY,Percentage Hh Family in a given zip code,Census: Pct Hh Family: 0-100,INTEGER,3
+CENSPCT_HH_FAMILY_HUSBWIFE,Percentage Hh Family Husband & Wife in a given zip code,Census: Pct Hh Family Husb & Wife: 0-100,INTEGER,3
+CENSPCT_HU_OCCUPIED,Percentage Housing unit Occupied in a given zip code,Census: Pct Hu Occupied: 0-100,INTEGER,3
+CENSPCT_HU_OWNED,Percentage Housing unit Owned in a given zip code,Census: Pct Hu Owned: 0-100,INTEGER,3
+CENSPCT_HU_RENTED,Percentage Housing unit Rented in a given zip code,Census: Pct Hu Rented: 0-100,INTEGER,3
+CENSPCT_HU_VACANTSEASONAL,Percentage Housing unt Vacant/Seasonal in a given zip code,Census: Pct Hu Vacant/Seasonal: 0-100,INTEGER,3
+EHI_V2,"Estimated household income level is a model that takes into consideration 80+ model predicators across a diverse set of info including demographics, transactional & behavioral data, property ownership and mortgages, vehicle ownership and geo-demographics. The data originates from a range of deterministic and probalistic data sources such as county assessor records, self-reported information (e.g. surveys), Census demographics, and many more. EHI_V2 field, released in June 2023, replacing EHI - Field #50. 
+","Estimated Household Income:
+A - Less than $20,000
+B - $20,000-$29,999
+C - $30,000-$39,999
+D - $40,000-$49,999
+E - $50,000-$59,999
+F - $60,000-$74,999
+G - $75,000-$99,999
+H - $100,000-$124,999
+I - $125,000-$149,999
+J - $150,000-$199,999
+K - $200,000-$249,999
+L - $250,000-$499,999                                                              
+M - $500,000+                                                                          ",VARCHAR,1
+OCCUPATIONCD_V2,"Derived from self-reported data and/or state license bureau data indicating an individual's occupation. OCCUPATIONCD_V2 field, released in June 2023, replacing OCCUPATIONCD - Field #63.",See tab - Demo Codes - Occupation,VARCHAR,1
+WEALTHSCR_V2,"The net worth selection is a model which predicts household net worth. It takes into consideration 60+ model predictors across a diverse set of info including demographics, transactional & behavioral data, property ownership and mortgages, vehicle ownership and geo-demographics. The data originates from a range of deterministic and probalistic data sources such as county assessor records, self-reported information (e.g. surveys), Census demographics, and many more.  WEALTHSCR_V2 field, released in March 2024, replacing WEALTHSCR - Field #59. 
+","Wealth Score: 
+A - $0 OR LESS
+B - $1 - $24,999
+C - $25,000 - $49,999
+D - $50,000 - $74,999
+E - $75,000 - $99,999
+F - $100,000 - $149,999
+G - $150,000 - $249,999
+H - $250,000 - $374,999
+I - $375,000 - $499,999
+J - $500,000 - $749,999
+K - $750,000 - $999,999
+L - $1,000,000+",VARCHAR,1
+AGE_RANGE_ESTIMATED,"Adult Estimated Age Range is calculated from date of birth data. Age data is applied at the individual level and is compiled from a variety of sources that may include public data, buying activities, and self-reported information. This is a calculation of age based on the individual's year of birth. The calculation is current year minus the YOB, which is then used to assign the record to an appropriate age range.","Estimated Age Range                                                                            A - Estimated Age 18-24
+B - Estimated Age 25-34
+C - Estimated Age 35-44
+D - Estimated Age 45-54
+E - Estimated Age 55-64 
+F - Estimated Age 65-74
+G - Estimated Age 75+
+",VARCHAR,1
+AGE_RANGE_INFERRED,"Adult Inferred Age Range uses known age of adults within the same ZIP+4 to assign an age range. The originating known age data is compiled from a variety of sources that may include public data, buying activities data, and self-reported information. A value is only assigned for this field if a record for the AGE_RANGE_ESTIMATED field is not available.","Inferred Age Range.                                                                              A - Inferred Age 18-24
+B - Inferred Age 25-34
+C - Inferred Age 35-44
+D - Inferred Age 45-54
+E - Inferred Age 55-64 
+F - Inferred Age 65-74
+G - Inferred Age 75+
+",VARCHAR,1
+AGE_RANGE_COMBINED,"Adult Combined Age Range assigns an age range value to all records, using the applicable value from either AGE_RANGE_ESTIMATED and AGE_RANGE_INFERRED fields. Use this field if you are looking close to complete age range coverage within the TCI universe.","Combined (Estimated + Inferred) Age Range                                                                    A - Combined Age 18-24
+B - Combined Age 25-34
+C - Combined Age 35-44
+D - Combined Age 45-54
+E - Combined Age 55-64 
+F - Combined Age 65-74
+G - Combined Age 75+
+",VARCHAR,1
+CPI_FOOD_DELIVERY_INDEX,Future Use,Cpi Food Delivery Index: 9-0,VARCHAR,255
+CPI_ONLINE_PAY_INDEX,Future Use,Cpi Online Pay Index: 9-0,VARCHAR,255
+CPI_UPSCALE_SHOP_INDEX,Future Use,Cpi Upscale Shop Index: 9-0,VARCHAR,255
+CPI_WHOLESALE_SHOP_INDEX,Future Use,Cpi Wholesale Index: 9-0,VARCHAR,255
+INTERNAL14,Future Use,Future Use,VARCHAR,255
+INTERNAL15,Future Use,Future Use,VARCHAR,255
+INTERNAL16,Future Use,Future Use,VARCHAR,255
+INTERNAL17,Future Use,Future Use,VARCHAR,255
+INTERNAL18,Future Use,Future Use,VARCHAR,255
+INTERNAL19,Future Use,Future Use,VARCHAR,255
+INTERNAL20,Future Use,Future Use,VARCHAR,255
+INTERNAL21,Future Use,Future Use,VARCHAR,255
+INTERNAL22,Future Use,Future Use,VARCHAR,255
+INTERNAL23,Future Use,Future Use,VARCHAR,255
+INTERNAL24,Future Use,Future Use,VARCHAR,255
+INTERNAL25,Future Use,Future Use,VARCHAR,255
+INTERNAL26,Future Use,Future Use,VARCHAR,255
+INTERNAL27,Future Use,Future Use,VARCHAR,255
+INTERNAL28,Future Use,Future Use,VARCHAR,255
+INTERNAL29,Future Use,Future Use,VARCHAR,255
+INTERNAL30,Future Use,Future Use,VARCHAR,255
+INTERNAL31,Future Use,Future Use,VARCHAR,255
+INTERNAL32,Future Use,Future Use,VARCHAR,255
+INTERNAL33,Future Use,Future Use,VARCHAR,255
+INTERNAL34,Future Use,Future Use,VARCHAR,255
+INTERNAL35,Future Use,Future Use,VARCHAR,255
+INTERNAL36,Future Use,Future Use,VARCHAR,255
+INTERNAL37,Future Use,Future Use,VARCHAR,255
+INTERNAL38,Future Use,Future Use,VARCHAR,255
+INTERNAL39,Future Use,Future Use,VARCHAR,255
+INTERNAL40,Future Use,Future Use,VARCHAR,255
+INTERNAL41,Future Use,Future Use,VARCHAR,255
+INTERNAL42,Future Use,Future Use,VARCHAR,255
+INTERNAL43,Future Use,Future Use,VARCHAR,255
+INTERNAL44,Future Use,Future Use,VARCHAR,255
+INTERNAL45,Future Use,Future Use,VARCHAR,255
+INTERNAL46,Future Use,Future Use,VARCHAR,255
+INTERNAL47,Future Use,Future Use,VARCHAR,255
+INTERNAL48,Future Use,Future Use,VARCHAR,255
+INTERNAL49,Future Use,Future Use,VARCHAR,255
+INTERNAL50,Future Use,Future Use,VARCHAR,255
+INTERNAL51,Future Use,Future Use,VARCHAR,255
+INTERNAL52,Future Use,Future Use,VARCHAR,255
+INTERNAL53,Future Use,Future Use,VARCHAR,255
+ADDRID,Persistent ID assigned to addresses identified in the VMS Graph,,VARCHAR,50
+PROP_OWNEROCC,Y - Property is Owner Occupied,,VARCHAR,1
+PROP_IND,"A general code used to easily recognize specific property types (e.g, Residential, Condominium, Commercial). Please see ""PROP_IND"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_MOBHOME,"This field is populated with a ""Y"" if a Mobile Home is present on the parcel.
+Y - YES",,VARCHAR,1
+PROP_STYLE,"Type of building style (e.g., Colonial, Cape Code, Bungalow).  Please see ""PROP_STYLE"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_STORIESCD,"Type / number of stories (e.g., Split Foyer, Tri Level, 2 Story).  Please see ""PROP_STORIESCD"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_QLTY,"Type of construction quality of building:
+000 - NONE
+001 - TYPE UNKNOWN
+999 - BYPASS
+QAV - AVERAGE
+QBA - BELOW AVERAGE
+QEC - ECONOMICAL
+QEX - EXCELLENT
+QFA - FAIR
+QGO - GOOD
+QLO - LOW
+QLU - LUXURY
+QPO - POOR
+QVV - ABOVE AVERAGE",,VARCHAR,3
+PROP_COND,"This represents the physical condition of the building (e.g., Good, Fair, Under Construction).  Please see ""PROP_COND"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_CNSTRTYPE,"The primary method of construction (e.g., Steel / Glass, Concrete Block, Log).  Please see ""PROP_CNSTRTYPE"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_EXTNW,"The type and/or finish of the exterior walls (e.g., Vinyl Siding, Brick Veneer, Frame / Stone).  Please see ""PROP_EXTNW"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_VALCALC,"The total (e.g., Land + Improvement) Value closest to current market value used for assessment by county or local taxing authorities",,VARCHAR,11
+PROP_VAL_CALCIND,"Type of values used to seed the total value calculated field:
+A - ASSESSED
+M - MARKET
+P - APPRAISED
+T - TRANSITIONAL",,VARCHAR,1
+PROP_IMP_VALCALC,"The ""IMPROVEMENT"" Value closest to current market value used for assessment by county or local taxing authorities",,VARCHAR,11
+PROP_IMP_VALCALC_IND,*DO NOT USE* This field will be deprecated.,,VARCHAR,1
+PROP_ASSED_VAL,The Total Assessed Value of the Parcel's Land & Improvement values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_ASSED_IMPVAL,The Assessed Improvement Values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_MRKTVAL,Total Market Value of the Parcel's Land & Improvement values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_MRKT_IMPVAL,Market Improvement Values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_APPRAISED_VAL,The Total Appraised Value of the Parcel's Land & Improvement values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_APPRAISED_IMPVAL,The Appraised Improvement Values as provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_YRBLD,Original Year Building Construction - YYYY,,VARCHAR,4
+PROP_EFFYRBLD,"This is the first year the building was assessed with its current components (e.g., YYYY, a building is originally constructed in 1960 and a bedroom and bath was added to the building in 1974.  The Year Built would be 1960 and the Effective Year Built would be 1974)",,VARCHAR,4
+PROP_VIEW,"View from building (e.g., Gulf, Mountains, Pool).  Please see ""PROP_VIEW "" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_LCTN_INFL,"Positive or negative aspects associated with the location of the parcel (e.g., waterfront, flood plane, airport).  Please see ""PROP_LCTN_INFL"" table for code descriptions and/or click on the field name to view individual codes descriptions.",,VARCHAR,3
+PROP_ACRES,Total acreage of the parcel,,VARCHAR,13
+PROP_LANDSQFT,Total land mass is Square Feet,,VARCHAR,9
+PROP_UNVBLDSQFT,"The Building Square Footage that can most accurately be used for assessments or comparables (e.g., Living, Adjusted, Gross)",,VARCHAR,9
+PROP_BLDSQFTIND,"The codes appearing in this field indicate the source used to populate the UNIVERSAL BUILDING SQUARE FEET field: 
+A - ADJUSTED
+B - TOTAL
+D - GROUND FLOOR
+G - GROSS
+L - LIVING
+M - BASE/MAIN",,VARCHAR,1
+PROP_BLDSQFT,The size of the building in Square Feet.  This field is most commonly populated as a cumulative total when a county does not differentiate between Living and Non-living areas,,VARCHAR,9
+PROP_LIVINGSQFT,"Area of a building that is used for general living.  This is typically the area of a building that is heated or air conditioned and does not include Garage, Porch or Basement square footage",,VARCHAR,7
+PROP_GROSSSQFT,Square footage for the entire building.  Typically this represents all square feet under the roof,,VARCHAR,7
+PROP_ADJGROSSSQFT,"Square footage used by the county or local taxing / assessment authority to determine Improvement Value.  This figure is typically 100% of the living area, plus lower percentage of non-living area",,VARCHAR,7
+PROP_RMS,Total number of rooms for all the buildings,,VARCHAR,5
+PROP_BEDRMS,Total number of bedrooms contained in the primary building,,VARCHAR,5
+PROP_BATHSCALC,Total number of Bathrooms in on the property,,VARCHAR,5
+PROP_BATHS,"Total number of Bathrooms as provided by our data sources (e.g., 4.00, 2.50, 1.75)",,VARCHAR,5
+PROP_FULLBATHS,Total number of full bathrooms for all the buildings. If source does not break out full versus partial baths this field will be null,,VARCHAR,5
+PROP_AC,"The type of air conditioning method used to cool the building (e.g., Central, Wall Unit, Evaporative).  Please see ""PROP_AC"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_FRPL,"This field is populated with a ""Y"" if a fireplace is located within the building
+Y - YES",,VARCHAR,1
+PROP_FND,"The type of foundation (e.g., Continuous Footing, Pier, Mud Sill).  Please see ""PROP_FND"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_FLR,"The type of floor construction (e.g., Concrete, Plywood).  Please see ""PROP_FLR"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_GAR,"Type of garage or carport present (e.g., Attached Finished, Enclosed Carport, Basement Garage).  Please see ""PROP_GAR"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_HEAT,"Type or method of heating (e.g., Hot Water, Heat Pump, Baseboard, Radiant).  Please see ""PROP_HEAT"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_POOL,"Indicates if a Pool is Present in Parcel
+Y - YES",,VARCHAR,1
+PROP_ROOFCOVER,"Type of roof covering (e.g., Clay Tile, Aluminum, Shake).  Please see ""PROP_ROOFCOVER"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_ROOFTYPE,"Type of roof shape (e.g., Gambrel, Gable, Flat, Mansard).  Please see ""PROP_ROOFTYPE"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_ENERGY,"Type of electricity or energy use within the building (e.g., Average Wiring, Underground Wired, Private Source).  Please see ""PROP_ENERGY"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_FUEL,"Type of fuel used for heating of water and building (e.g., Solar, Gas, Oil).  Please see ""PROP_FUEL"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,3
+PROP_SEWER,"Type Of Sewer System On The Parcel:
+000 - NONE
+001 - TYPE UNKNOWN
+999 - BYPASS
+SCE - CESSPOOL
+SPU - PUBLIC
+SCO - COMMERCIAL
+SPR - PRIVATE
+SSE - SEPTIC
+STR - STORM",,VARCHAR,3
+PROP_WATER,"Type Of Water Service On The Parcel:
+000 - NONE
+001 - TYPE UNKNOWN
+999 - BYPASS
+WCI - CISTERN
+WCO - COMMERCIAL
+WPR - PRIVATE
+WPU - PUBLIC
+WPW - PUBLIC WELL
+WSC - SPRING/CREEK
+WWE - WELL",,VARCHAR,3
+PROP_HOMESTEAD,"Indicates if an owner is qualified for a Homeowner/Homestead exemption
+Y - YES",,VARCHAR,1
+PROP_XMTVET,"This field will be set with a ""Y"" if the owner has qualified for a Veteran exemption
+Y - YES",,VARCHAR,10
+PROP_XMT_DISABLED,"This field will be set with a ""Y"" if the owner has qualified for a Disabled exemption
+Y - YES",,VARCHAR,10
+PROP_TAXAMT,The Total Tax amount provided by the county or local taxing/assessment authority,,VARCHAR,11
+PROP_TAXYR,The tax or assessment year for which the taxes were billed - YYYY,,VARCHAR,4
+PROP_SALESDEEDCD,"The type of deed used to record the sales transaction. Please see ""PROP_SALESDEEDCD"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,2
+PROP_SALEDATE,Date the sales transaction was legally completed  -YYYYMMDD,,VARCHAR,8
+PROP_SALEAMT,Dollar amount of the most recent sale of the property,,VARCHAR,11
+PROP_SALECD,"This field indicates what the financial consideration is - if a Deed record represents a change of ownership (Sale). Please see ""PROP_SALECD"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,1
+PROP_SALESTRANSCD,"This field details the type of real estate transaction associated with a single recorded legal document, or a set of concurrently recorded documents, i.e. Market Sale with or without a Mortgage, Standalone Mortgage, Construction Financing Loan, etc:
+1 - RESALE
+2 - STANDALONE MORTGAGE/REFINANCE
+3 - SUBDIVISION/NEW CONSTRUCTION
+4 - TIMESHARE
+6 - CONSTRUCTION LOAN
+7 - SELLER CARRYBACK
+9 - NOMINAL
+D - RELEASE OF DEED
+J - MECHANIC LIEN / RELEASE
+S - ASSIGNMENT OF DEED OF TRUST",,VARCHAR,2
+PROP_OWNERCD,"Form or method of property ownership (e.g., Joint Tenants, Living Trust). Please see ""PROP_OWNERCD"" table for code descriptions and/or click on the field name to view individual codes descriptions.",,VARCHAR,3
+PROP_LOANTOVAL,"If provided on the note and recorded, loan to value ratio (e.g., 47,118,61,185)",,VARCHAR,3
+PROP_MTGAMT,The amount of the first mortgage associated with the purchase deed.,,VARCHAR,11
+PROP_MTGDATE,Date Mortgage was initiated - YYYYMMDD,,VARCHAR,8
+PROP_MTGLOANCD,"Associated with the Mortgage type:
+CDA - COMMUNITY DEVELPMENT AUTHORITY
+CNV - CONVENTIONAL
+FHA - FEDERAL HOUSING ADMINISTRATION
+L - LEASEHOLD MORTGAGE
+PP - PRIVATE PARTY
+PVT - PRIVATE LENDER
+SBA - SMALL BUSINESS ADMINISTRATION
+VA - VETERAN AFFAIRS
+WRP - WRAPAROUND MORTGAGE",,VARCHAR,5
+PROP_MTGTERM,"The length of time before the mortgage matures, associated with First Mortgage Term Code",,VARCHAR,5
+PROP_MTGDUEDATE,Date Mortgage becomes due - YYYYMMDD,,VARCHAR,8
+PROP_LENDERNAME,Name of Lender,,VARCHAR,60
+PROP_MTGREFICD,*DO NOT USE* This field will be deprecated.,,VARCHAR,1
+PROP_RMSEQUITYCD,"A - ALL INCLUSIVE
+B - BLANKET
+C - CREDIT LINE
+D - CREDIT LINE DEED OF TRUST
+E - EQUITY
+L - BALLOON
+N - NONE
+R - REVOLVING LINE OF CREDIT
+S - SECOND/SUBORDINATE MORTGAGE
+T - THIRD MORTGAGE/DEED OF TRUST
+U - OTHER SUBORDINATE LOAN
+V - REVERSE",,VARCHAR,1
+PROP_MTGINTRATE,"Rate Associated with Mortgage
+Example: 4.7300 = 4.73%",,VARCHAR,6
+PROP_MTGINTRATETYPE,"Mortgage Rate Type:
+ADA - ADJUSTABLE, INTEREST RATE FROM NATIONAL AVERAGE
+ADJ - ADJUSTABLE
+BAL - BALLOON
+FIX - FIXED
+FXA - FIXED, INTEREST RATE FROM NATIONAL AVERAGE
+VAR - VARIABLE RATE",,VARCHAR,3
+PROP_MTGAMT2,Amount of 2nd mortgage,,VARCHAR,11
+PROP_MTGDATE2,Date 2nd Mortgage was initiated - YYYYMMDD,,VARCHAR,8
+PROP_MTGLOANCD2,"Associated with the 2nd Mortgage type:
+CDA - COMMUNITY DEVELPMENT AUTHORITY
+CNV - CONVENTIONAL
+FHA - FEDERAL HOUSING ADMINISTRATION
+L - LEASEHOLD MORTGAGE
+PP - PRIVATE PARTY
+PVT - PRIVATE LENDER
+SBA - SMALL BUSINESS ADMINISTRATION
+VA - VETERAN AFFAIRS
+WRP - WRAPAROUND MORTGAGE",,VARCHAR,5
+PROP_MTGDEEDCD2,"2nd Deed used for recording. Please see ""PROP_MTGDEEDCD"" table for code descriptions and/or click on the field name to view individual codes descriptions",,VARCHAR,6
+PROP_MTGTERM2,"The length of time per the 2nd mortgage (e.g., 15 years, 30 years, etc)",,VARCHAR,5
+PROP_MTGDUEDATE2,Date 2nd Mortgage becomes due - YYYYMMDD,,VARCHAR,8
+PROP_MTGASSUMPTIONAMT2,*DO NOT USE* This field will be deprecated.,,VARCHAR,9
+PROP_LENDERNAME2,Name of Lender 2,,VARCHAR,60
+PROP_MTGREFICD2,*DO NOT USE* This field will be deprecated.,,VARCHAR,1
+PROP_RMSEQUITYCD2,"A - ALL INCLUSIVE
+B - BLANKET
+C - CREDIT LINE
+D - CREDIT LINE DEED OF TRUST
+E - EQUITY
+L - BALLOON
+N - NONE
+R - REVOLVING LINE OF CREDIT
+S - SECOND/SUBORDINATE MORTGAGE
+T - THIRD MORTGAGE/DEED OF TRUST
+U - OTHER SUBORDINATE LOAN
+V - REVERSE",,VARCHAR,1
+PROP_MTGINTRATE2,"Rate Associated with Mortgage
+Example: 4.7300 = 4.73%",,VARCHAR,6
+PROP_MTGINTRATETYPE2,"Mortgage Rate Type:
+ADA - ADJUSTABLE, INTEREST RATE FROM NATIONAL AVERAGE
+ADJ - ADJUSTABLE
+BAL - BALLOON
+FIX - FIXED
+FXA - FIXED, INTEREST RATE FROM NATIONAL AVERAGE
+VAR - VARIABLE RATE",,VARCHAR,3
+PROP_MTGAMT3,Amount of 3rd mortgage,,VARCHAR,11
+PROP_MTGDATE3,Date 3rd Mortgage was initiated - YYYYMMDD,,VARCHAR,8
+PROP_MTGLOANCD3,"Associated with the 3rd Mortgage type:
+CDA - COMMUNITY DEVELPMENT AUTHORITY
+CNV - CONVENTIONAL
+FHA - FEDERAL HOUSING ADMINISTRATION
+L - LEASEHOLD MORTGAGE
+PP - PRIVATE PARTY
+PVT - PRIVATE LENDER
+SBA - SMALL BUSINESS ADMINISTRATION
+VA - VETERAN AFFAIRS
+WRP - WRAPAROUND MORTGAGE",,VARCHAR,5
+PROP_MTGDEEDCD3,*DO NOT USE* This field will be deprecated.,,VARCHAR,6
+PROP_MTGTERM3,"The length of time per the 3rd mortgage (e.g., 15 years, 30 years, etc)",,VARCHAR,5
+PROP_MTGDUEDATE3,Date 3rd Mortgage becomes due - YYYYMMDD,,VARCHAR,8
+PROP_MTGASSUMPTIONAMT3,*DO NOT USE* This field will be deprecated.,,VARCHAR,9
+PROP_LENDERNAME3,Name of Lender 3,,VARCHAR,60
+PROP_MTGREFICD3,*DO NOT USE* This field will be deprecated.,,VARCHAR,1
+PROP_RMSEQUITYCD3,"A - ALL INCLUSIVE
+B - BLANKET
+C - CREDIT LINE
+D - CREDIT LINE DEED OF TRUST
+E - EQUITY
+L - BALLOON
+N - NONE
+R - REVOLVING LINE OF CREDIT
+S - SECOND/SUBORDINATE MORTGAGE
+T - THIRD MORTGAGE/DEED OF TRUST
+U - OTHER SUBORDINATE LOAN
+V - REVERSE",,VARCHAR,1
+PROP_MTGINTRATE3,"Rate Associated with Mortgage
+Example: 4.7300 = 4.73%",,VARCHAR,6
+PROP_MTGINTRATETYPE3,"Mortgage Rate Type 3:
+ADA - ADJUSTABLE, INTEREST RATE FROM NATIONAL AVERAGE
+ADJ - ADJUSTABLE
+BAL - BALLOON
+FIX - FIXED
+FXA - FIXED, INTEREST RATE FROM NATIONAL AVERAGE
+VAR - VARIABLE RATE",,VARCHAR,3
+HEQUITY_EST,Estimate of Homeowner Equity in the Property in Dollars,,FLOAT,8
+HEQUITY_CONF,"Home Equity Estimate Confidence Level (from 1 to 4)
+1 - HIGH CONFIDENCE HOME EQUITY PREDICTIONS
+2 - MEDIUM CONFIDENCE HOME EQUITY PREDICTIONS
+3 - MEDIUM-LOW CONFIDENCE HOME EQUITY PREDICTIONS
+4 - LOW CONFIDENCE HOME EQUITY PREDICTIONS",,VARCHAR,1
+AVM_ESTIMATE,Estimate of Property Value in Dollars,,FLOAT,8
+AVM_ESTIMATE_ERROR,Estimate Error in Dollars (based on zip or national if zip not available),,FLOAT,7
+AVM_ESTIMATE_PCT_ERROR,Estimate Error as a percentage of Estimate Value (000-999)  (based on zip or national if zip not available),,FLOAT,3
+INTERNAL,Internal Use,,VARCHAR,255
+INTERNAL2,Internal Use,,VARCHAR,255
+INTERNAL3,Internal Use,,VARCHAR,255
+INTERNAL4,Internal Use,,VARCHAR,255
+INTERNAL5,Internal Use,,VARCHAR,255
+INTERNAL6,Internal Use,,VARCHAR,255
+INTERNAL7,Internal Use,,VARCHAR,255
+IMS_HOMEBUYER,InMarket New Home (Purchase) Mortgage Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for New Home Mortgage                                                                      8: Lowest Likelihood to be In-market for New Home Mortgage,"Scout's InMarket Scores measure a consumer's likelihood to be in-market for a mortgage for a new home. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_NEWHOME,InMarket New Home (Purchase) Mortgage Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for New Home Mortgage                                                                      8: Lowest Likelihood to be In-market for New Home Mortgage,"Scout's InMarket Scores measure a consumer's likelihood to be in-market for a mortgage for a new home. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_REFI,InMarket Refinance Mortgage Ranges: 1-8                                                  1: Highest Likelihood to be In-market for Refinance Mortgage                                                    8: Lowest Likelihood to be In-market for Refinance Mortgage,"Scout's InMarket Scores measure a consumer's likelihood to be in-market to refinance their mortgage. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_HELOC,InMarket HELOC Mortgage Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for HELOC Mortgage                                                                      8: Lowest Likelihood to be In-market for HELOC Mortgage,"Scout's InMarket Scores measure a consumer's likelihood to be in-market for a home equity line of credit (HELOC). The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_REVERSE,InMarket Reverse Mortgage Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for Reverse Mortgage                                                                      8: Lowest Likelihood to be In-market for Reverse Mortgage,"Scout's InMarket Scores measure a consumer's likelihood to be in-market for a reverse mortgage. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_GENERAL,InMarket Mortgage (General) Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for Mortgage (General)                                                                   8: Lowest Likelihood to be In-market for Mortgage (General),"Scout's InMarket Scores measure a consumer's likelihood to be in-market for a mortgage although the specific mortgage category has not yet been identified. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+IMS_MTG_OVERALL,InMarket Mortgage (Overall) Values Ranges: 1-8                                                  1: Highest Likelihood to be In-market for Mortgage (Overall)                                                                   8: Lowest Likelihood to be In-market for Mortgage (Overall),"Scout's InMarket Scores measures a consumer's likelihood to be in-market for a mortgage in one or more of the mortgage categories (new home, refinance, HELOC, reverse and/or general interest). The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit in-market behavior. Records scored with a ""1"" represent the highest confidence levels of in-market behavior. Records scored with an ""8"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.",INTEGER,2
+BUYER_SCORE,Scout's buyer intent score,"Scout's proprietary likely mover scores measure a consumer's likelihood to be a buyer or seller. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit homebuyer or seller behavior. Records scored with a ""150"" represent the highest confidence levels of in-market behavior. Records scored with a ""0"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.  ",INTEGER,3
+SELLER_SCORE,Scout's seller intent score,"Scout's proprietary likely mover scores measure a consumer's likelihood to be a buyer or seller. The score assesses a combination of recency, frequency, and depth of shopping behavior, as well as hundreds of household and consumer level characteristics to determine an individual's propensity to exhibit homebuyer or seller behavior. Records scored with a ""150"" represent the highest confidence levels of in-market behavior. Records scored with a ""0"" have the lowest likelihood to exhibit in-market behavior, representing records with the lowest confidence levels or lacking any intelligence to indicate the record is in-market.  ",INTEGER,3
