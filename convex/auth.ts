@@ -26,36 +26,6 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         
         return profile;
       },
-      // Enable email verification
-      sendVerificationEmail: async ({ email, token, url }) => {
-        console.log("Sending verification email to:", email);
-        console.log("Verification URL:", url);
-        
-        try {
-          // Use the existing SendGrid implementation
-          const response = await fetch(`${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/send-verification-email`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email,
-              verificationUrl: url,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to send verification email: ${response.statusText}`);
-          }
-
-          const result = await response.json();
-          console.log("Verification email sent successfully:", result);
-        } catch (error) {
-          console.error("Failed to send verification email:", error);
-          // Fallback: log the URL for development
-          console.log("Copy this URL to verify your email:", url);
-        }
-      },
     }),
   ],
 });
@@ -65,6 +35,73 @@ export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.auth.getUserIdentity();
+  },
+});
+
+// Send verification email mutation
+export const sendVerificationEmail = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      // Find the user by email
+      const user = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), args.email))
+        .first();
+
+      if (!user) {
+        return { success: false, message: "User not found" };
+      }
+
+      // Check if already verified
+      if (user.emailVerificationTime) {
+        return { success: false, message: "Email already verified" };
+      }
+
+      // Generate verification token
+      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const verificationUrl = `${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/verify-email?token=${token}`;
+
+      // Store verification code
+      await ctx.db.insert("authVerificationCodes", {
+        code: token,
+        email: args.email,
+        createdAt: Date.now(),
+      });
+
+      // Send email via API
+      try {
+        const response = await fetch(`${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/send-verification-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: args.email,
+            verificationUrl,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to send verification email: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Verification email sent successfully:", result);
+        
+        return { success: true, message: "Verification email sent successfully" };
+      } catch (error) {
+        console.error("Failed to send verification email:", error);
+        // Fallback: log the URL for development
+        console.log("Copy this URL to verify your email:", verificationUrl);
+        return { success: true, message: "Verification email logged to console (development mode)" };
+      }
+    } catch (error) {
+      console.error("Send verification email error:", error);
+      return { success: false, message: "Failed to send verification email" };
+    }
   },
 });
 

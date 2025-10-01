@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { Authenticated, Unauthenticated, AuthLoading } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useRouter } from 'next/navigation';
@@ -59,6 +59,7 @@ function KycContent() {
 
   // Fetch KYC status from Convex
   const kycStatus = useQuery(api.kyc.getKycStatus);
+  const sendVerificationEmail = useMutation(api.auth.sendVerificationEmail);
   
   const loading = user === undefined || kycStatus === undefined;
   const shouldRedirect = Boolean(user && kycVerified === true);
@@ -67,8 +68,20 @@ function KycContent() {
     if (kycStatus) {
       setKycVerified(kycStatus.kycVerified);
       setEmailVerified(kycStatus.emailVerified);
+      
+      // Auto-send verification email if user is not verified and we haven't sent one yet
+      if (!kycStatus.emailVerified && user?.email && !emailFetched.current) {
+        emailFetched.current = true;
+        sendVerificationEmail({ email: user.email })
+          .then((result) => {
+            console.log("Verification email sent:", result);
+          })
+          .catch((error) => {
+            console.error("Failed to send verification email:", error);
+          });
+      }
     }
-  }, [kycStatus]);
+  }, [kycStatus, user, sendVerificationEmail]);
 
   // Check for email verification success in URL params
   useEffect(() => {
