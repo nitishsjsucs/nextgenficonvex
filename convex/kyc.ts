@@ -84,7 +84,14 @@ export const getKycStatus = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     
+    console.log("getKycStatus called:", { 
+      hasIdentity: !!identity, 
+      identityEmail: identity?.email,
+      timestamp: new Date().toISOString() 
+    });
+    
     if (!identity || !identity.email) {
+      console.log("No identity or email, returning default values");
       // Return default values instead of throwing error
       return {
         kycVerified: false,
@@ -97,10 +104,20 @@ export const getKycStatus = query({
       .filter((q) => q.eq(q.field("email"), identity.email))
       .first();
 
-    return {
+    console.log("User lookup in getKycStatus:", { 
+      userFound: !!user, 
+      userEmail: user?.email,
+      kycVerified: user?.kycVerified,
+      emailVerificationTime: user?.emailVerificationTime 
+    });
+
+    const result = {
       kycVerified: user?.kycVerified || false,
       emailVerified: user?.emailVerificationTime ? true : false,
     };
+
+    console.log("getKycStatus returning:", result);
+    return result;
   },
 });
 

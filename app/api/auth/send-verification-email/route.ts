@@ -7,10 +7,19 @@ if (process.env.SENDGRID_API_KEY) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log("Send verification email API called at:", new Date().toISOString());
+  
   try {
     const { email, verificationUrl } = await request.json();
+    
+    console.log("Request data:", { 
+      email, 
+      verificationUrl: verificationUrl ? verificationUrl.substring(0, 50) + "..." : null,
+      hasSendGridKey: !!process.env.SENDGRID_API_KEY 
+    });
 
     if (!email || !verificationUrl) {
+      console.log("Missing required fields:", { email: !!email, verificationUrl: !!verificationUrl });
       return NextResponse.json(
         { error: "Email and verification URL are required" },
         { status: 400 }
@@ -19,6 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Extract name from email (before @) for personalization
     const name = email.split('@')[0];
+    console.log("Extracted name from email:", name);
 
     const msg = {
       to: email,
@@ -75,8 +85,13 @@ export async function POST(request: NextRequest) {
     };
 
     if (process.env.SENDGRID_API_KEY) {
+      console.log("Sending email via SendGrid...");
       const result = await sgMail.send(msg);
-      console.log("Verification email sent successfully:", result[0].statusCode);
+      console.log("Verification email sent successfully:", { 
+        statusCode: result[0].statusCode,
+        messageId: result[0].headers['x-message-id'],
+        to: email 
+      });
       
       return NextResponse.json({
         success: true,

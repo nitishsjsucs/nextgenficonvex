@@ -44,6 +44,8 @@ export const sendVerificationEmail = mutation({
     email: v.string(),
   },
   handler: async (ctx, args) => {
+    console.log("sendVerificationEmail called with:", { email: args.email, timestamp: new Date().toISOString() });
+    
     try {
       // Find the user by email
       const user = await ctx.db
@@ -51,18 +53,32 @@ export const sendVerificationEmail = mutation({
         .filter((q) => q.eq(q.field("email"), args.email))
         .first();
 
+      console.log("User lookup result:", { 
+        userFound: !!user, 
+        userEmail: user?.email, 
+        emailVerificationTime: user?.emailVerificationTime 
+      });
+
       if (!user) {
+        console.log("User not found for email:", args.email);
         return { success: false, message: "User not found" };
       }
 
       // Check if already verified
       if (user.emailVerificationTime) {
+        console.log("Email already verified for user:", args.email);
         return { success: false, message: "Email already verified" };
       }
 
       // Generate verification token
       const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       const verificationUrl = `${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/verify-email?token=${token}`;
+      
+      console.log("Generated verification token and URL:", { 
+        token: token.substring(0, 8) + "...", 
+        verificationUrl,
+        siteUrl: process.env.SITE_URL 
+      });
 
       // Find the user's account to get the accountId
       const account = await ctx.db
@@ -70,12 +86,19 @@ export const sendVerificationEmail = mutation({
         .filter((q) => q.eq(q.field("providerAccountId"), args.email))
         .first();
 
+      console.log("Account lookup result:", { 
+        accountFound: !!account, 
+        accountId: account?._id,
+        providerAccountId: account?.providerAccountId 
+      });
+
       if (!account) {
+        console.log("Account not found for email:", args.email);
         return { success: false, message: "Account not found" };
       }
 
       // Store verification code
-      await ctx.db.insert("authVerificationCodes", {
+      const verificationCodeId = await ctx.db.insert("authVerificationCodes", {
         code: token,
         accountId: account._id,
         provider: "password",
@@ -83,9 +106,17 @@ export const sendVerificationEmail = mutation({
         emailVerified: args.email, // Store email in emailVerified field
       });
 
+      console.log("Verification code stored:", { 
+        verificationCodeId, 
+        expirationTime: new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString() 
+      });
+
       // Send email via API
       try {
-        const response = await fetch(`${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/send-verification-email`, {
+        const apiUrl = `${process.env.SITE_URL || 'https://nextgenficonvex.vercel.app'}/api/auth/send-verification-email`;
+        console.log("Attempting to send email via API:", { apiUrl });
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -96,8 +127,16 @@ export const sendVerificationEmail = mutation({
           }),
         });
 
+        console.log("Email API response:", { 
+          status: response.status, 
+          statusText: response.statusText,
+          ok: response.ok 
+        });
+
         if (!response.ok) {
-          throw new Error(`Failed to send verification email: ${response.statusText}`);
+          const errorText = await response.text();
+          console.error("Email API error response:", errorText);
+          throw new Error(`Failed to send verification email: ${response.statusText} - ${errorText}`);
         }
 
         const result = await response.json();

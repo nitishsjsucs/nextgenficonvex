@@ -65,20 +65,43 @@ function KycContent() {
   const shouldRedirect = Boolean(user && kycVerified === true);
 
   useEffect(() => {
+    console.log("KYC Page useEffect triggered:", {
+      kycStatus,
+      user: user ? { email: user.email, name: user.name } : null,
+      emailFetched: emailFetched.current,
+      timestamp: new Date().toISOString()
+    });
+
     if (kycStatus) {
       setKycVerified(kycStatus.kycVerified);
       setEmailVerified(kycStatus.emailVerified);
       
+      console.log("KYC Status details:", {
+        emailVerified: kycStatus.emailVerified,
+        kycVerified: kycStatus.kycVerified,
+        userEmail: user?.email,
+        shouldSendEmail: !kycStatus.emailVerified && user?.email && !emailFetched.current
+      });
+      
       // Auto-send verification email if user is not verified and we haven't sent one yet
       if (!kycStatus.emailVerified && user?.email && !emailFetched.current) {
+        console.log("Attempting to send verification email for:", user.email);
         emailFetched.current = true;
         sendVerificationEmail({ email: user.email })
           .then((result) => {
-            console.log("Verification email sent:", result);
+            console.log("Verification email sent successfully:", result);
           })
           .catch((error) => {
             console.error("Failed to send verification email:", error);
+            // Reset the flag so we can try again
+            emailFetched.current = false;
           });
+      } else {
+        console.log("Skipping email send:", {
+          reason: !kycStatus.emailVerified ? "Email already verified" : 
+                  !user?.email ? "No user email" : 
+                  emailFetched.current ? "Already attempted" : "Unknown"
+        });
       }
     }
   }, [kycStatus, user, sendVerificationEmail]);
