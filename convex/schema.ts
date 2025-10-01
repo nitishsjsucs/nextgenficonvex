@@ -43,7 +43,7 @@ export default defineSchema({
     password: v.optional(v.union(v.null(), v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("accountId", ["accountId"]).index("userId", ["userId"]),
+  }).index("accountId", ["accountId"]).index("userId", ["userId"]).index("providerAndAccountId", ["providerId", "accountId"]),
 
   verifications: defineTable({
     identifier: v.string(),
