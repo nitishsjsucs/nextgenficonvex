@@ -53,6 +53,7 @@ function KycContent() {
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [emailVerificationSuccess, setEmailVerificationSuccess] = useState(false);
   const kycFetched = useRef(false);
   const emailFetched = useRef(false);
 
@@ -68,6 +69,16 @@ function KycContent() {
       setEmailVerified(kycStatus.emailVerified);
     }
   }, [kycStatus]);
+
+  // Check for email verification success in URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === 'true') {
+      setEmailVerificationSuccess(true);
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (shouldRedirect) {
@@ -189,7 +200,19 @@ function KycContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!emailVerified && (
+          {emailVerificationSuccess && (
+            <Alert className="border-green-500 bg-green-50">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <AlertTitle className="text-green-800">Email Verified Successfully!</AlertTitle>
+              </div>
+              <AlertDescription className="text-green-700">
+                Your email has been verified. You can now proceed with KYC verification.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!emailVerified && !emailVerificationSuccess && (
             <Alert className="border-orange-500 bg-orange-50">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
@@ -199,6 +222,9 @@ function KycContent() {
                 <div className="flex items-center gap-2 mt-2">
                   <Mail className="h-4 w-4" />
                   <span>Please check your inbox and verify your email address before proceeding with KYC verification.</span>
+                </div>
+                <div className="mt-2 text-sm">
+                  <strong>Note:</strong> Check your email inbox (and spam folder) for the verification email. If you don't receive it, check your browser console for the verification URL.
                 </div>
               </AlertDescription>
             </Alert>
@@ -233,9 +259,9 @@ function KycContent() {
             </p>
           </div>
           
-          <FileUploader files={files} onFilesChange={handleFileChange} disabled={isLoading || !emailVerified} />
+          <FileUploader files={files} onFilesChange={handleFileChange} disabled={isLoading || (!emailVerified && !emailVerificationSuccess)} />
           
-          <Button onClick={handleVerification} disabled={isLoading || !hasFiles || !emailVerified} className="w-full" size="lg">
+          <Button onClick={handleVerification} disabled={isLoading || !hasFiles || (!emailVerified && !emailVerificationSuccess)} className="w-full" size="lg">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

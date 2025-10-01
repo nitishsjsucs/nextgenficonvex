@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 
 export function SignupForm() {
@@ -16,6 +17,7 @@ export function SignupForm() {
   const [error, setError] = useState("");
 
   const { signIn } = useAuthActions();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +35,9 @@ export function SignupForm() {
         ssn,
         flow: "signUp",
       });
+      
+      // Redirect to KYC page after successful signup
+      router.push("/kyc");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
