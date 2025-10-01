@@ -228,15 +228,39 @@ export const storeVerificationCode = mutation({
       expirationTime: new Date(args.expirationTime).toISOString() 
     });
 
-    // Find the account by email
+    // Get the current user ID to find the correct account
+    const userId = await getAuthUserId(ctx);
+    console.log("Current user ID for verification code:", userId);
+    
+    if (!userId) {
+      console.log("No authenticated user found");
+      throw new Error("User not authenticated");
+    }
+
+    // Find the account by userId (not by email to avoid conflicts)
     const account = await ctx.db
       .query("authAccounts")
-      .filter((q) => q.eq(q.field("providerAccountId"), args.email))
+      .filter((q) => q.eq(q.field("userId"), userId))
       .first();
 
+    console.log("Account lookup by userId:", { 
+      accountFound: !!account, 
+      accountId: account?._id,
+      providerAccountId: account?.providerAccountId 
+    });
+
     if (!account) {
-      console.log("Account not found for email:", args.email);
+      console.log("Account not found for userId:", userId);
       throw new Error("Account not found");
+    }
+
+    // Verify the email matches the account
+    if (account.providerAccountId !== args.email) {
+      console.log("Email mismatch:", { 
+        accountEmail: account.providerAccountId, 
+        requestedEmail: args.email 
+      });
+      throw new Error("Email does not match authenticated user");
     }
 
     // Store verification code
