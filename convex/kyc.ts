@@ -27,35 +27,120 @@ export const verifyIdentity = mutation({
     fileUrl: v.string(),
   },
   handler: async (ctx, args) => {
-    // Get the current user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    if (!identity || !identity.email) {
-      throw new Error("Not authenticated");
-    }
-
-    console.log("KYC verification started for user:", identity.email);
+    console.log("=== KYC VERIFICATION START ===");
+    console.log("Timestamp:", new Date().toISOString());
     console.log("File URL:", args.fileUrl);
+    console.log("Args:", JSON.stringify(args));
 
     try {
-      // Get user data for verification
-      const user = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("email"), identity.email))
-        .first();
+      // Step 1: Check authentication
+      console.log("=== STEP 1: Checking Authentication ===");
+      const identity = await ctx.auth.getUserIdentity();
+      
+      console.log("Identity details:", {
+        exists: !!identity,
+        email: identity?.email,
+        name: identity?.name,
+        subject: identity?.subject,
+        tokenIdentifier: identity?.tokenIdentifier
+      });
 
-      if (!user) {
-        throw new Error("User not found");
+      if (!identity) {
+        console.error("ERROR: No identity found");
+        throw new Error("Not authenticated - no identity");
       }
 
-      // Process the document with Gemini API
-      const verificationResult = await processDocumentWithGemini(args.fileUrl, user);
+      if (!identity.email) {
+        console.error("ERROR: Identity exists but no email:", JSON.stringify(identity));
+        throw new Error("Not authenticated - no email in identity");
+      }
 
+      console.log("✅ Authentication successful for:", identity.email);
+
+      // Step 2: Get user ID
+      console.log("=== STEP 2: Getting User ID ===");
+      const userId = await getAuthUserId(ctx);
+      console.log("User ID:", userId);
+
+      // Step 3: Look up user in database
+      console.log("=== STEP 3: Looking up user in database ===");
+      
+      let user = null;
+      
+      // Try by user ID first
+      if (userId) {
+        user = await ctx.db.get(userId);
+        console.log("User lookup by ID result:", {
+          userId: userId,
+          found: !!user,
+          email: user?.email,
+          name: user?.name,
+          kycVerified: user?.kycVerified,
+          emailVerificationTime: user?.emailVerificationTime
+        });
+      }
+
+      // If not found by ID, try by email
+      if (!user) {
+        console.log("User not found by ID, trying by email:", identity.email);
+        const userQuery = await ctx.db
+          .query("users")
+          .filter((q) => q.eq(q.field("email"), identity.email))
+          .collect();
+        
+        console.log("User query by email result:", {
+          queryEmail: identity.email,
+          resultsCount: userQuery.length,
+          users: userQuery.map(u => ({ id: u._id, email: u.email, name: u.name }))
+        });
+
+        if (userQuery.length > 0) {
+          user = userQuery[0];
+          console.log("✅ Found user by email:", user.email);
+        }
+      }
+
+      if (!user) {
+        console.error("ERROR: User not found in database");
+        console.log("Available users in database:");
+        const allUsers = await ctx.db.query("users").collect();
+        console.log("All users:", allUsers.map(u => ({ id: u._id, email: u.email, name: u.name })));
+        throw new Error(`User not found in database. Auth email: ${identity.email}, User ID: ${userId}`);
+      }
+
+      console.log("✅ User found:", {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        kycVerified: user.kycVerified,
+        emailVerified: !!user.emailVerificationTime
+      });
+
+      // Step 4: Process document
+      console.log("=== STEP 4: Processing document with Gemini ===");
+      console.log("About to call processDocumentWithGemini");
+      
+      const verificationResult = await processDocumentWithGemini(args.fileUrl, user);
+      
+      console.log("Gemini processing result:", {
+        success: verificationResult.success,
+        message: verificationResult.message,
+        hasExtractedData: !!verificationResult.extractedData,
+        hasVerification: !!verificationResult.verification
+      });
+
+      // Step 5: Handle verification result
+      console.log("=== STEP 5: Processing verification result ===");
+      
       if (verificationResult.success) {
+        console.log("✅ Verification successful, updating user KYC status");
+        
         // Update user's KYC status
         await ctx.db.patch(user._id, {
           kycVerified: true,
         });
+
+        console.log("✅ User KYC status updated to verified");
 
         return {
           success: true,
@@ -64,17 +149,26 @@ export const verifyIdentity = mutation({
           extractedData: verificationResult.extractedData,
         };
       } else {
+        console.log("❌ Verification failed:", verificationResult.message);
         return {
           success: false,
           message: verificationResult.message || "KYC verification failed",
         };
       }
+
     } catch (error) {
-      console.error("KYC verification error:", error);
+      console.error("=== KYC VERIFICATION ERROR ===");
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+      console.error("Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+
       return {
         success: false,
-        message: error instanceof Error ? error.message : "KYC verification failed",
+        message: error instanceof Error ? error.message : "KYC verification failed unexpectedly",
       };
+    } finally {
+      console.log("=== KYC VERIFICATION END ===");
     }
   },
 });
