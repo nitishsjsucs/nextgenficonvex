@@ -158,10 +158,16 @@ export const verifyIdentity = mutation({
 
     } catch (error) {
       console.error("=== KYC VERIFICATION ERROR ===");
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-      console.error("Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      
+      if (error instanceof Error) {
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        console.error("Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      } else {
+        console.error("Unknown error type:", typeof error);
+        console.error("Error value:", JSON.stringify(error));
+      }
 
       return {
         success: false,
@@ -332,7 +338,7 @@ async function processDocumentWithGemini(fileUrl: string, user: any): Promise<Ve
     };
 
   } catch (error) {
-    console.error("Gemini processing error:", error);
+    console.error("Gemini processing error:", error instanceof Error ? error.message : String(error));
     // Fallback to simulation
     return simulateDocumentProcessing(user);
   }
