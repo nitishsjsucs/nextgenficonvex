@@ -50,17 +50,17 @@ export const verifyIdentity = mutation({
         throw new Error("Not authenticated - no identity");
       }
 
-      if (!identity.email) {
-        console.error("ERROR: Identity exists but no email:", JSON.stringify(identity));
-        throw new Error("Not authenticated - no email in identity");
-      }
-
-      console.log("✅ Authentication successful for:", identity.email);
-
-      // Step 2: Get user ID
+      // Instead of relying on identity.email, get user ID first and look up user
       console.log("=== STEP 2: Getting User ID ===");
       const userId = await getAuthUserId(ctx);
-      console.log("User ID:", userId);
+      console.log("✅ User ID obtained:", userId);
+
+      if (!userId) {
+        console.error("ERROR: Could not get user ID");
+        throw new Error("Not authenticated - could not get user ID");
+      }
+
+      console.log("✅ Authentication successful with user ID:", userId);
 
       // Step 3: Look up user in database
       console.log("=== STEP 3: Looking up user in database ===");
