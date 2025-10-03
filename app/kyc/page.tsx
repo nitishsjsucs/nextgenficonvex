@@ -60,6 +60,7 @@ function KycContent() {
   // Fetch KYC status from Convex
   const kycStatus = useQuery(api.kyc.getKycStatus);
   const sendVerificationEmail = useAction(api.auth.sendVerificationEmail);
+  const verifyKyc = useMutation(api.kyc.verifyIdentity);
   
   const loading = user === undefined || kycStatus === undefined;
   const shouldRedirect = Boolean(user && kycVerified === true);
@@ -197,23 +198,19 @@ function KycContent() {
         }
       }
 
-      // 2. Call the KYC verification API with the first uploaded file
+      // 2. Call the KYC verification Convex mutation with the first uploaded file
       const firstFileUrl = Object.values(uploadedFileUrls)[0];
-      const verifyResponse = await fetch('/api/kyc/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileUrl: firstFileUrl }),
-      });
+      
+      console.log("Calling KYC verification for:", firstFileUrl);
+      const result = await verifyKyc({ fileUrl: firstFileUrl });
 
-      const result = await verifyResponse.json();
-
-      if (!verifyResponse.ok) {
+      if (result.success) {
+        setIsSuccess(true);
+        setVerificationStatus('Verification successful!');
+        setCountdown(3);
+      } else {
         throw new Error(result.message || "Verification process failed.");
       }
-
-      setIsSuccess(true);
-      setVerificationStatus('Verification successful!');
-      setCountdown(3);
 
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
