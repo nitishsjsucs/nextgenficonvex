@@ -96,8 +96,19 @@ export const sendVerificationEmail = action({
     console.log("sendVerificationEmail called with:", { email: args.email, timestamp: new Date().toISOString() });
     
     try {
+      // Wait a moment to ensure the user session is settled after signup
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       // Find the user by email
       const user = await ctx.runQuery(api.auth.getCurrentUser);
+      
+      console.log("sendVerificationEmail - Current user check:", {
+        hasUser: !!user,
+        userEmail: user?.email,
+        requestedEmail: args.email,
+        userSubject: user?.subject,
+        userIdentity: user?.tokenIdentifier
+      });
       
       if (!user || user.email !== args.email) {
         console.log("User not found or email mismatch:", { 
@@ -105,7 +116,7 @@ export const sendVerificationEmail = action({
           userEmail: user?.email, 
           requestedEmail: args.email 
         });
-        return { success: false, message: "User not found" };
+        return { success: false, message: "User not found or email mismatch during verification" };
       }
 
       console.log("User lookup result:", { 

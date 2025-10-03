@@ -19,7 +19,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { signIn } = useAuthActions();
+  const { signIn, signOut } = useAuthActions();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +28,15 @@ export function SignupForm() {
     setError("");
 
     try {
-      // Sign up the user with Convex Auth
+      // First sign out any existing session to ensure fresh signup
+      console.log("Signing out any existing session before signup");
+      await signOut();
+      
+      // Wait a moment for the signout to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Then sign up the new user with Convex Auth
+      console.log("Creating new account for:", email);
       await signIn("password", {
         email,
         password,
@@ -39,9 +47,11 @@ export function SignupForm() {
         flow: "signUp",
       });
       
+      console.log("Signup successful, redirecting to KYC");
       // Redirect to KYC page after successful signup
       router.push("/kyc");
     } catch (err) {
+      console.error("Signup error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
