@@ -188,8 +188,11 @@ export function EarthquakeMap({
       console.log("📊 [DEBUG] Earthquakes length:", data.earthquakes?.length);
       console.log("📊 [DEBUG] Is earthquakes array?", Array.isArray(data.earthquakes));
 
-      // Clear previous markers
+      // Clear previous markers with debugging
+      console.log("🗑️ [DEBUG] About to clear markers from quakeGroup:", quakeGroup);
+      console.log("🗑️ [DEBUG] Current marker count before clear:", quakeGroup.getLayers().length);
       quakeGroup.clearLayers();
+      console.log("🗑️ [DEBUG] Markers cleared. New count:", quakeGroup.getLayers().length);
 
       // Add new markers
       if (!data.earthquakes || !Array.isArray(data.earthquakes)) {
@@ -223,7 +226,8 @@ export function EarthquakeMap({
         const color = quake.mag >= 5 ? "#ef4444" : quake.mag >= 4 ? "#f59e0b" : "#10b981";
         const radius = Math.max(4, quake.mag * 2);
 
-        L.circleMarker([quake.latitude, quake.longitude], {
+        console.log(`📍 [DEBUG] Creating marker ${index} at [${quake.latitude}, ${quake.longitude}]`);
+        const marker = L.circleMarker([quake.latitude, quake.longitude], {
           radius,
           weight: 2,
           opacity: 0.9,
@@ -242,13 +246,30 @@ export function EarthquakeMap({
         `
           )
           .addTo(quakeGroup);
+
+        console.log(`✅ [DEBUG] Marker ${index} added. Total markers now:`, quakeGroup.getLayers().length);
       });
 
       console.log("✅ [DEBUG] Successfully processed all earthquakes");
+      console.log("📊 [DEBUG] Final marker count:", quakeGroup.getLayers().length);
       console.log("📊 [DEBUG] Setting earthquake data:", data);
       setEarthquakeData(data);
       console.log("📊 [DEBUG] Calling onEarthquakeSelection with full response:", data);
       onEarthquakeSelection?.(data);
+
+      // Track marker persistence over time
+      setTimeout(() => {
+        console.log("⏰ [DEBUG] 1 second after markers added. Count:", quakeGroup.getLayers().length);
+      }, 1000);
+
+      setTimeout(() => {
+        console.log("⏰ [DEBUG] 3 seconds after markers added. Count:", quakeGroup.getLayers().length);
+      }, 3000);
+
+      setTimeout(() => {
+        console.log("⏰ [DEBUG] 5 seconds after markers added. Count:", quakeGroup.getLayers().length);
+      }, 5000);
+
     } catch (err) {
       console.error("❌ [ERROR] Earthquake fetch failed:", err);
       console.error("❌ [ERROR] Error type:", typeof err);
@@ -269,12 +290,17 @@ export function EarthquakeMap({
     let canceled = false;
 
     const init = async () => {
+      console.log("🗺️ [DEBUG] Map initialization started");
       if (!mapDivRef.current) return;
-      if (mapRef.current) return; // guard against double init
+      if (mapRef.current) {
+        console.log("🗺️ [DEBUG] Map already exists, skipping init");
+        return; // guard against double init
+      }
 
       const L = await ensureLeaflet();
       await initPlugins(L);
 
+      console.log("🗺️ [DEBUG] Creating new map instance");
       const map = L.map(mapDivRef.current).setView([39, -98], 4);
       mapRef.current = map;
 
@@ -288,6 +314,9 @@ export function EarthquakeMap({
       const quakeGroup = L.layerGroup().addTo(map);
       drawnGroupRef.current = drawnGroup;
       quakeGroupRef.current = quakeGroup;
+
+      console.log("🗺️ [DEBUG] Map initialized successfully");
+      console.log("🗺️ [DEBUG] QuakeGroup created:", quakeGroup);
 
       // Draw controls
       const drawControl = new L.Control.Draw({
@@ -305,6 +334,7 @@ export function EarthquakeMap({
 
       // Handle draw events
       map.on(L.Draw.Event.CREATED as any, (e: any) => {
+        console.log("🎨 [DEBUG] Draw event created");
         drawnGroup.clearLayers();
         drawnGroup.addLayer(e.layer);
         const bounds = e.layer.getBounds
@@ -315,6 +345,7 @@ export function EarthquakeMap({
       });
 
       map.on("draw:deleted" as any, () => {
+        console.log("🗑️ [DEBUG] Draw event deleted - clearing earthquake markers");
         quakeGroup.clearLayers();
         setEarthquakeData(null);
         setError(null);
@@ -330,6 +361,7 @@ export function EarthquakeMap({
         }),
       })
         .on("markgeocode", (e: any) => {
+          console.log("🔍 [DEBUG] Geocoder result selected");
           const b = e.geocode.bbox; // LatLngBounds
           const rect = L.rectangle(b, { weight: 2 });
           drawnGroup.clearLayers();
@@ -349,6 +381,7 @@ export function EarthquakeMap({
 
       if (canceled) {
         // If unmounted during async init, clean up
+        console.log("🗺️ [DEBUG] Map initialization canceled, cleaning up");
         try {
           map.remove();
         } catch {}
@@ -358,6 +391,7 @@ export function EarthquakeMap({
     init();
 
     return () => {
+      console.log("🗺️ [DEBUG] Map cleanup started");
       canceled = true;
       if (mapRef.current) {
         mapRef.current.remove();
@@ -452,7 +486,7 @@ export function EarthquakeMap({
       {/* Instructions */}
       <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-lg">
         <strong>Instructions:</strong> Use the drawing tools (top-left) to draw a rectangle or polygon.
-        The search box sits <em>under</em> the tools. Then click “Fetch Earthquakes” to load data from USGS
+        The search box sits <em>under</em> the tools. Then click "Fetch Earthquakes" to load data from USGS
         for that region.
       </div>
     </div>
