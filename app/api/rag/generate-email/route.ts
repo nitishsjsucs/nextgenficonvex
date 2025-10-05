@@ -34,24 +34,44 @@ export interface EmailGenerationResponse {
 }
 
 async function generateEmailWithGemini(request: EmailGenerationRequest): Promise<EmailGenerationResponse> {
-  const { target, context } = request;
-  const { person, earthquake, distance_km, risk_level } = target;
+  console.log('🤖 [DEBUG] ===== GEMINI EMAIL GENERATION START =====');
   
-  console.log('🤖 [DEBUG] Starting Gemini email generation');
-  console.log('🤖 [DEBUG] Target person:', person);
-  console.log('🤖 [DEBUG] Earthquake:', earthquake);
+  const { target, context } = request;
+  console.log('🤖 [DEBUG] Extracted target and context from request');
+  
+  const { person, earthquake, distance_km, risk_level } = target;
+  console.log('🤖 [DEBUG] Destructured target properties');
+  
+  console.log('🤖 [DEBUG] Target person keys:', Object.keys(person || {}));
+  console.log('🤖 [DEBUG] Target person firstName:', person?.firstName);
+  console.log('🤖 [DEBUG] Target person lastName:', person?.lastName);
+  console.log('🤖 [DEBUG] Target person city:', person?.city);
+  console.log('🤖 [DEBUG] Target person state:', person?.state);
+  console.log('🤖 [DEBUG] Target person houseValue:', person?.houseValue);
+  console.log('🤖 [DEBUG] Target person hasInsurance:', person?.hasInsurance);
+  
+  console.log('🤖 [DEBUG] Earthquake keys:', Object.keys(earthquake || {}));
+  console.log('🤖 [DEBUG] Earthquake id:', earthquake?.id);
+  console.log('🤖 [DEBUG] Earthquake mag:', earthquake?.mag);
+  console.log('🤖 [DEBUG] Earthquake place:', earthquake?.place);
+  console.log('🤖 [DEBUG] Earthquake time:', earthquake?.time);
+  
   console.log('🤖 [DEBUG] Distance:', distance_km, 'Risk:', risk_level);
+  console.log('🤖 [DEBUG] Context:', context);
   
   // Get Gemini API key from environment variables
+  console.log('🔑 [DEBUG] Checking for GEMINI_API_KEY...');
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.log('❌ [ERROR] GEMINI_API_KEY not configured');
     throw new Error('GEMINI_API_KEY environment variable is not configured');
   }
   
-  console.log('✅ [DEBUG] GEMINI_API_KEY is configured');
+  console.log('✅ [DEBUG] GEMINI_API_KEY is configured (length:', apiKey.length, ')');
 
   // Construct the prompt for Gemini
+  console.log('📝 [DEBUG] Constructing prompt for Gemini...');
+  
   const prompt = `You are an insurance marketing professional writing a personalized email about earthquake insurance. Use the following information to create a compelling, professional, and personalized email:
 
 RECIPIENT INFORMATION:
@@ -90,47 +110,59 @@ FORMAT YOUR RESPONSE AS JSON:
 
 Only return the JSON, no other text.`;
 
+  console.log('📝 [DEBUG] Prompt constructed successfully');
+  console.log('📝 [DEBUG] Prompt length:', prompt.length);
+  console.log('📝 [DEBUG] Prompt preview (first 200 chars):', prompt.substring(0, 200) + '...');
+
   try {
     console.log('🌐 [DEBUG] Making request to Gemini API');
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     console.log('🌐 [DEBUG] API URL:', apiUrl.replace(apiKey, 'HIDDEN_KEY'));
+    
+    const requestBody = {
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 4096, // Increased to 4096
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        }
+      ]
+    };
+    
+    console.log('🌐 [DEBUG] Request body constructed');
+    console.log('🌐 [DEBUG] Request body size:', JSON.stringify(requestBody).length);
+    console.log('🌐 [DEBUG] Contents count:', requestBody.contents.length);
+    console.log('🌐 [DEBUG] Parts count:', requestBody.contents[0]?.parts?.length);
+    console.log('🌐 [DEBUG] Text length:', requestBody.contents[0]?.parts?.[0]?.text?.length);
     
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 4096, // Increased to 4096
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
-      })
+      body: JSON.stringify(requestBody)
     });
 
     console.log('📡 [DEBUG] Gemini API response status:', response.status);
@@ -199,10 +231,26 @@ Only return the JSON, no other text.`;
 }
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 [DEBUG] ===== EMAIL GENERATION API CALLED =====');
+  
   try {
     console.log('📧 [DEBUG] Email generation API called');
+    console.log('📧 [DEBUG] Request headers:', Object.fromEntries(request.headers.entries()));
+    
     const body: EmailGenerationRequest = await request.json();
-    console.log('📧 [DEBUG] Request body:', JSON.stringify(body, null, 2));
+    console.log('📧 [DEBUG] Request body received');
+    console.log('📧 [DEBUG] Body keys:', Object.keys(body));
+    console.log('📧 [DEBUG] Target exists:', !!body.target);
+    console.log('📧 [DEBUG] Context exists:', !!body.context);
+    
+    if (body.target) {
+      console.log('📧 [DEBUG] Target person keys:', Object.keys(body.target.person || {}));
+      console.log('📧 [DEBUG] Target earthquake keys:', Object.keys(body.target.earthquake || {}));
+      console.log('📧 [DEBUG] Target person firstName:', body.target.person?.firstName);
+      console.log('📧 [DEBUG] Target earthquake mag:', body.target.earthquake?.mag);
+      console.log('📧 [DEBUG] Target distance_km:', body.target.distance_km);
+      console.log('📧 [DEBUG] Target risk_level:', body.target.risk_level);
+    }
     
     if (!body.target) {
       console.log('❌ [ERROR] Missing target information');
@@ -214,16 +262,26 @@ export async function POST(request: NextRequest) {
 
     console.log('📧 [DEBUG] Starting email generation with Gemini');
     const result = await generateEmailWithGemini(body);
-    console.log('✅ [DEBUG] Email generation successful:', result);
+    console.log('✅ [DEBUG] Email generation successful');
+    console.log('✅ [DEBUG] Generated subject:', result.subject?.substring(0, 50) + '...');
+    console.log('✅ [DEBUG] Generated body length:', result.body?.length);
     
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('❌ [ERROR] Email generation API error:', error);
+    console.error('❌ [ERROR] ===== EMAIL GENERATION API ERROR =====');
+    console.error('❌ [ERROR] Error type:', typeof error);
+    console.error('❌ [ERROR] Error constructor:', error?.constructor?.name);
+    console.error('❌ [ERROR] Error message:', error instanceof Error ? error.message : 'No message');
+    console.error('❌ [ERROR] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('❌ [ERROR] Full error object:', error);
+    
     return NextResponse.json(
       { 
         error: 'Failed to generate email', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error?.constructor?.name || 'Unknown',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );

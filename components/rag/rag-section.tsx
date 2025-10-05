@@ -245,24 +245,45 @@ export function RAGSection() {
 
     setIsLoading(true);
     try {
+      console.log('📧 [DEBUG] ===== RAG SECTION EMAIL GENERATION =====');
+      console.log('📧 [DEBUG] Selected target index:', selectedTargetIndex);
+      console.log('📧 [DEBUG] Selected target:', selectedTarget);
+      console.log('📧 [DEBUG] Campaign context:', campaignContext);
+      
+      const requestBody = {
+        target: selectedTarget,
+        context: campaignContext
+      };
+      
+      console.log('📧 [DEBUG] Request body keys:', Object.keys(requestBody));
+      console.log('📧 [DEBUG] Target person:', requestBody.target?.person);
+      console.log('📧 [DEBUG] Target earthquake:', requestBody.target?.earthquake);
+      console.log('📧 [DEBUG] Target distance_km:', requestBody.target?.distance_km);
+      console.log('📧 [DEBUG] Target risk_level:', requestBody.target?.risk_level);
+      
       // Call the real Gemini API for email generation
+      console.log('📧 [DEBUG] Making API call to /api/rag/generate-email');
       const response = await fetch('/api/rag/generate-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          target: selectedTarget,
-          context: campaignContext
-        })
+        body: JSON.stringify(requestBody)
       });
+      
+      console.log('📧 [DEBUG] API response status:', response.status);
+      console.log('📧 [DEBUG] API response ok:', response.ok);
 
       if (!response.ok) {
+        console.log('❌ [ERROR] API response not ok, status:', response.status);
         const errorData = await response.json();
+        console.log('❌ [ERROR] Error data:', errorData);
         throw new Error(errorData.error || `API error: ${response.status}`);
       }
 
+      console.log('✅ [DEBUG] API response successful, parsing JSON...');
       const emailResult = await response.json();
+      console.log('✅ [DEBUG] Email result received:', emailResult);
       
       const generatedEmail: EmailContent = {
         subject: emailResult.subject,
