@@ -247,8 +247,8 @@ export function EarthquakeMap({
       console.log("✅ [DEBUG] Successfully processed all earthquakes");
       console.log("📊 [DEBUG] Setting earthquake data:", data.earthquakes);
       setEarthquakeData(data.earthquakes);
-      console.log("📊 [DEBUG] Calling onEarthquakeSelection with:", data.earthquakes);
-      onEarthquakeSelection?.(data.earthquakes);
+      console.log("📊 [DEBUG] Calling onEarthquakeSelection with full response:", data);
+      onEarthquakeSelection?.(data);
     } catch (err) {
       console.error("❌ [ERROR] Earthquake fetch failed:", err);
       console.error("❌ [ERROR] Error type:", typeof err);
