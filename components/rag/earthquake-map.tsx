@@ -166,8 +166,8 @@ export function EarthquakeMap({
 
       // Add new markers
       data.earthquakes.forEach((quake: any) => {
-        const color = quake.magnitude >= 5 ? "#ef4444" : quake.magnitude >= 4 ? "#f59e0b" : "#10b981";
-        const radius = Math.max(4, quake.magnitude * 2);
+        const color = quake.mag >= 5 ? "#ef4444" : quake.mag >= 4 ? "#f59e0b" : "#10b981";
+        const radius = Math.max(4, quake.mag * 2);
 
         L.circleMarker([quake.latitude, quake.longitude], {
           radius,
@@ -179,10 +179,10 @@ export function EarthquakeMap({
           .bindPopup(
             `
           <div class="p-2">
-            <strong>🌍 Magnitude ${quake.magnitude}</strong><br/>
+            <strong>🌍 Magnitude ${quake.mag}</strong><br/>
             <strong>Location:</strong> ${quake.place}<br/>
             <strong>Time:</strong> ${new Date(quake.time).toLocaleString()}<br/>
-            <strong>Depth:</strong> ${quake.depth} km<br/>
+            <strong>Depth:</strong> ${quake.depth_km} km<br/>
             <a href="${quake.url}" target="_blank" class="text-blue-600 hover:underline">View Details</a>
           </div>
         `
