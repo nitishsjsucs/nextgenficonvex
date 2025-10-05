@@ -245,8 +245,8 @@ export function EarthquakeMap({
       });
 
       console.log("✅ [DEBUG] Successfully processed all earthquakes");
-      console.log("📊 [DEBUG] Setting earthquake data:", data.earthquakes);
-      setEarthquakeData(data.earthquakes);
+      console.log("📊 [DEBUG] Setting earthquake data:", data);
+      setEarthquakeData(data);
       console.log("📊 [DEBUG] Calling onEarthquakeSelection with full response:", data);
       onEarthquakeSelection?.(data);
     } catch (err) {
