@@ -65,6 +65,16 @@ export function EarthquakeMap({
   const [minMag, setMinMag] = useState(0);
   const [polyFilter, setPolyFilter] = useState(true);
 
+  // Debug state initialization
+  console.log("🔧 [DEBUG] Component initialized with state:", {
+    isLoading,
+    error,
+    earthquakeData,
+    hours,
+    minMag,
+    polyFilter
+  });
+
   // --------------- Helpers ---------------
   const ensureLeaflet = async () => {
     if (LRef.current) return LRef.current;
@@ -145,6 +155,14 @@ export function EarthquakeMap({
           ? { type: "Polygon", coordinates: [polygonRing] }
           : null;
 
+      console.log("🔍 [DEBUG] Starting earthquake fetch with params:", {
+        bbox,
+        hours,
+        minMag,
+        polyFilter,
+        polygonRing
+      });
+
       const response = await fetch("/api/earthquakes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -157,15 +175,51 @@ export function EarthquakeMap({
         }),
       });
 
+      console.log("📡 [DEBUG] API Response status:", response.status, response.statusText);
+
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
+      console.log("📊 [DEBUG] Raw API response:", data);
+      console.log("📊 [DEBUG] Response type:", typeof data);
+      console.log("📊 [DEBUG] Response keys:", Object.keys(data));
+      console.log("📊 [DEBUG] Earthquakes array:", data.earthquakes);
+      console.log("📊 [DEBUG] Earthquakes type:", typeof data.earthquakes);
+      console.log("📊 [DEBUG] Earthquakes length:", data.earthquakes?.length);
+      console.log("📊 [DEBUG] Is earthquakes array?", Array.isArray(data.earthquakes));
 
       // Clear previous markers
       quakeGroup.clearLayers();
 
       // Add new markers
-      data.earthquakes.forEach((quake: any) => {
+      if (!data.earthquakes || !Array.isArray(data.earthquakes)) {
+        console.error("❌ [ERROR] Earthquakes data is not an array:", data.earthquakes);
+        throw new Error("Invalid earthquakes data format");
+      }
+
+      console.log("✅ [DEBUG] Processing", data.earthquakes.length, "earthquakes");
+      data.earthquakes.forEach((quake: any, index: number) => {
+        console.log(`🔍 [DEBUG] Processing earthquake ${index}:`, {
+          id: quake.id,
+          mag: quake.mag,
+          latitude: quake.latitude,
+          longitude: quake.longitude,
+          place: quake.place,
+          time: quake.time,
+          depth_km: quake.depth_km
+        });
+
+        // Validate required properties
+        if (quake.mag === null || quake.mag === undefined) {
+          console.warn(`⚠️ [WARNING] Earthquake ${index} has null/undefined magnitude:`, quake);
+        }
+        if (quake.latitude === null || quake.latitude === undefined) {
+          console.warn(`⚠️ [WARNING] Earthquake ${index} has null/undefined latitude:`, quake);
+        }
+        if (quake.longitude === null || quake.longitude === undefined) {
+          console.warn(`⚠️ [WARNING] Earthquake ${index} has null/undefined longitude:`, quake);
+        }
+
         const color = quake.mag >= 5 ? "#ef4444" : quake.mag >= 4 ? "#f59e0b" : "#10b981";
         const radius = Math.max(4, quake.mag * 2);
 
@@ -190,13 +244,22 @@ export function EarthquakeMap({
           .addTo(quakeGroup);
       });
 
+      console.log("✅ [DEBUG] Successfully processed all earthquakes");
+      console.log("📊 [DEBUG] Setting earthquake data:", data.earthquakes);
       setEarthquakeData(data.earthquakes);
+      console.log("📊 [DEBUG] Calling onEarthquakeSelection with:", data.earthquakes);
       onEarthquakeSelection?.(data.earthquakes);
     } catch (err) {
+      console.error("❌ [ERROR] Earthquake fetch failed:", err);
+      console.error("❌ [ERROR] Error type:", typeof err);
+      console.error("❌ [ERROR] Error message:", err instanceof Error ? err.message : "Unknown error");
+      console.error("❌ [ERROR] Error stack:", err instanceof Error ? err.stack : "No stack trace");
+      
       setError(
         err instanceof Error ? err.message : "Failed to fetch earthquake data"
       );
     } finally {
+      console.log("🏁 [DEBUG] Earthquake fetch completed (finally block)");
       setIsLoading(false);
     }
   }, [minMag, onEarthquakeSelection, hours, polyFilter]);

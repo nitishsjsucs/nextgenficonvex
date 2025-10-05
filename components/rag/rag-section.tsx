@@ -162,6 +162,21 @@ export function RAGSection() {
 
     setIsLoading(true);
     try {
+      console.log("🔍 [DEBUG] RAG Section - Starting target generation");
+      console.log("🔍 [DEBUG] RAG Section - selectedEarthquakeData:", selectedEarthquakeData);
+      console.log("🔍 [DEBUG] RAG Section - selectedEarthquakeData type:", typeof selectedEarthquakeData);
+      console.log("🔍 [DEBUG] RAG Section - selectedEarthquakeData.earthquakes:", selectedEarthquakeData?.earthquakes);
+      console.log("🔍 [DEBUG] RAG Section - earthquakes type:", typeof selectedEarthquakeData?.earthquakes);
+      console.log("🔍 [DEBUG] RAG Section - is earthquakes array?", Array.isArray(selectedEarthquakeData?.earthquakes));
+      console.log("🔍 [DEBUG] RAG Section - earthquakes length:", selectedEarthquakeData?.earthquakes?.length);
+      console.log("🔍 [DEBUG] RAG Section - minMagnitude:", minMagnitude);
+
+      if (!selectedEarthquakeData || !selectedEarthquakeData.earthquakes || !Array.isArray(selectedEarthquakeData.earthquakes)) {
+        console.error("❌ [ERROR] RAG Section - Invalid earthquake data:", selectedEarthquakeData);
+        setError("No earthquake data available. Please select a region on the map first.");
+        return;
+      }
+
       // Use the most recent/significant earthquake from the selected region
       const targetEarthquake = selectedEarthquakeData.earthquakes
         .filter(eq => eq.mag && eq.mag >= minMagnitude)
@@ -468,22 +483,52 @@ export function RAGSection() {
     setSelectedEarthquakeData(data);
     setRecentEarthquakes(data.earthquakes);
     
+    console.log("🔍 [DEBUG] RAG Stats - Processing earthquake stats data:", data);
+    console.log("🔍 [DEBUG] RAG Stats - data type:", typeof data);
+    console.log("🔍 [DEBUG] RAG Stats - data.earthquakes:", data.earthquakes);
+    console.log("🔍 [DEBUG] RAG Stats - earthquakes type:", typeof data.earthquakes);
+    console.log("🔍 [DEBUG] RAG Stats - is earthquakes array?", Array.isArray(data.earthquakes));
+    console.log("🔍 [DEBUG] RAG Stats - earthquakes length:", data.earthquakes?.length);
+    
     // Update earthquake stats based on real data, keep existing demographic stats
-    setEarthquakeStats(prevStats => ({
-      earthquake_stats: {
-        total_earthquakes: data.count,
-        recent_earthquakes_7_days: data.earthquakes.filter(eq => {
-          if (!eq.time) return false;
-          const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-          return eq.time > sevenDaysAgo;
-        }).length
-      },
-      demographic_stats: prevStats?.demographic_stats || {
-        high_value_homes: 0,
-        uninsured_homes: 0,
-        uninsured_percentage: "0.0"
+    setEarthquakeStats(prevStats => {
+      console.log("🔍 [DEBUG] RAG Stats - prevStats:", prevStats);
+      
+      if (!data.earthquakes || !Array.isArray(data.earthquakes)) {
+        console.error("❌ [ERROR] RAG Stats - Invalid earthquakes data:", data.earthquakes);
+        return prevStats || {
+          earthquake_stats: {
+            total_earthquakes: 0,
+            recent_earthquakes_7_days: 0
+          },
+          demographic_stats: {
+            high_value_homes: 0,
+            uninsured_homes: 0,
+            uninsured_percentage: "0.0"
+          }
+        };
       }
-    }));
+      
+      const filteredEarthquakes = data.earthquakes.filter(eq => {
+        if (!eq.time) return false;
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        return eq.time > sevenDaysAgo;
+      });
+      
+      console.log("🔍 [DEBUG] RAG Stats - Filtered earthquakes:", filteredEarthquakes);
+      
+      return {
+        earthquake_stats: {
+          total_earthquakes: data.count,
+          recent_earthquakes_7_days: filteredEarthquakes.length
+        },
+        demographic_stats: prevStats?.demographic_stats || {
+          high_value_homes: 0,
+          uninsured_homes: 0,
+          uninsured_percentage: "0.0"
+        }
+      };
+    });
   };
 
   return (
