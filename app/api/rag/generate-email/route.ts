@@ -37,11 +37,19 @@ async function generateEmailWithGemini(request: EmailGenerationRequest): Promise
   const { target, context } = request;
   const { person, earthquake, distance_km, risk_level } = target;
   
+  console.log('🤖 [DEBUG] Starting Gemini email generation');
+  console.log('🤖 [DEBUG] Target person:', person);
+  console.log('🤖 [DEBUG] Earthquake:', earthquake);
+  console.log('🤖 [DEBUG] Distance:', distance_km, 'Risk:', risk_level);
+  
   // Get Gemini API key from environment variables
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    console.log('❌ [ERROR] GEMINI_API_KEY not configured');
     throw new Error('GEMINI_API_KEY environment variable is not configured');
   }
+  
+  console.log('✅ [DEBUG] GEMINI_API_KEY is configured');
 
   // Construct the prompt for Gemini
   const prompt = `You are an insurance marketing professional writing a personalized email about earthquake insurance. Use the following information to create a compelling, professional, and personalized email:
@@ -83,7 +91,11 @@ FORMAT YOUR RESPONSE AS JSON:
 Only return the JSON, no other text.`;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+    console.log('🌐 [DEBUG] Making request to Gemini API');
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    console.log('🌐 [DEBUG] API URL:', apiUrl.replace(apiKey, 'HIDDEN_KEY'));
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,7 +110,7 @@ Only return the JSON, no other text.`;
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096, // Increased to 4096
         },
         safetySettings: [
           {
@@ -121,15 +133,40 @@ Only return the JSON, no other text.`;
       })
     });
 
+    console.log('📡 [DEBUG] Gemini API response status:', response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
+      console.log('❌ [ERROR] Gemini API error response:', errorData);
       throw new Error(`Gemini API error: ${response.status} ${response.statusText} - ${errorData}`);
     }
 
     const data = await response.json();
+    console.log('📡 [DEBUG] Gemini API response received');
+    
+    // Debug: Log the response structure
+    console.log('Gemini API Response:', JSON.stringify(data, null, 2));
     
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Invalid response structure:', data);
       throw new Error('Invalid response from Gemini API');
+    }
+
+    // Check if content has parts
+    if (!data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('No parts in response:', data.candidates[0].content);
+      
+      // Check if the response was blocked by safety filters
+      if (data.candidates[0].finishReason === 'SAFETY') {
+        throw new Error('Content was blocked by safety filters. Please try with different input.');
+      }
+      
+      // Check if response was truncated due to token limit
+      if (data.candidates[0].finishReason === 'MAX_TOKENS') {
+        throw new Error('Response was truncated due to token limit. Please try with a shorter prompt or increase maxOutputTokens.');
+      }
+      
+      throw new Error('No content parts in Gemini API response');
     }
 
     const generatedText = data.candidates[0].content.parts[0].text;
@@ -163,21 +200,26 @@ Only return the JSON, no other text.`;
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📧 [DEBUG] Email generation API called');
     const body: EmailGenerationRequest = await request.json();
+    console.log('📧 [DEBUG] Request body:', JSON.stringify(body, null, 2));
     
     if (!body.target) {
+      console.log('❌ [ERROR] Missing target information');
       return NextResponse.json(
         { error: 'Target information is required' },
         { status: 400 }
       );
     }
 
+    console.log('📧 [DEBUG] Starting email generation with Gemini');
     const result = await generateEmailWithGemini(body);
+    console.log('✅ [DEBUG] Email generation successful:', result);
     
     return NextResponse.json(result);
 
   } catch (error) {
-    console.error('Email generation API error:', error);
+    console.error('❌ [ERROR] Email generation API error:', error);
     return NextResponse.json(
       { 
         error: 'Failed to generate email', 
