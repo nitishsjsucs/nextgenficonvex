@@ -124,6 +124,8 @@ export function EarthquakeMap({
   };
 
   // --------------- Fetch Earthquakes ---------------
+  const fetchEarthquakesRef = useRef<(() => Promise<void>) | null>(null);
+  
   const fetchEarthquakes = useCallback(async () => {
     const L = LRef.current;
     const map = mapRef.current;
@@ -285,6 +287,9 @@ export function EarthquakeMap({
     }
   }, [minMag, onEarthquakeSelection, hours, polyFilter]);
 
+  // Store the latest fetchEarthquakes function in ref
+  fetchEarthquakesRef.current = fetchEarthquakes;
+
   // --------------- Init Map (StrictMode-safe) ---------------
   useEffect(() => {
     let canceled = false;
@@ -367,8 +372,12 @@ export function EarthquakeMap({
           drawnGroup.clearLayers();
           drawnGroup.addLayer(rect);
           map.fitBounds(b.pad(0.1));
-          // auto-fetch after search
-          void fetchEarthquakes();
+          // auto-fetch after search using stable ref
+          setTimeout(() => {
+            if (fetchEarthquakesRef.current) {
+              void fetchEarthquakesRef.current();
+            }
+          }, 100);
         })
         .addTo(map);
 
@@ -398,7 +407,7 @@ export function EarthquakeMap({
         mapRef.current = null;
       }
     };
-  }, [fetchEarthquakes]); // run once; internal guards prevent double init in StrictMode
+  }, []); // Empty dependency array - only run once on mount
 
   // --------------- Render ---------------
   return (
