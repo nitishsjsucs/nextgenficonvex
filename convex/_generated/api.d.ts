@@ -21,6 +21,7 @@ import type * as earthquakes from "../earthquakes.js";
 import type * as http from "../http.js";
 import type * as kyc from "../kyc.js";
 import type * as listUsers from "../listUsers.js";
+import type * as persons from "../persons.js";
 import type * as scoutData from "../scoutData.js";
 import type * as weatherEvents from "../weatherEvents.js";
 
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   kyc: typeof kyc;
   listUsers: typeof listUsers;
+  persons: typeof persons;
   scoutData: typeof scoutData;
   weatherEvents: typeof weatherEvents;
 }>;

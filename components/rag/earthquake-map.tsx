@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, MapPin } from "lucide-react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 // ------------------ Types ------------------
 interface EarthquakeData {
@@ -53,6 +55,9 @@ export function EarthquakeMap({
   const mapRef = useRef<any>(null);
   const drawnGroupRef = useRef<any>(null);
   const quakeGroupRef = useRef<any>(null);
+
+  // Convex mutation for storing earthquake data
+  const upsertEarthquake = useMutation(api.earthquakes.upsertEarthquake);
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -203,6 +208,27 @@ export function EarthquakeMap({
       }
 
       console.log("✅ [DEBUG] Processing", data.earthquakes.length, "earthquakes");
+      
+      // Store earthquakes in Convex database
+      console.log("💾 [DEBUG] Storing earthquakes in Convex database...");
+      for (const quake of data.earthquakes) {
+        try {
+          await upsertEarthquake({
+            id: quake.id,
+            time: quake.time,
+            latitude: quake.latitude,
+            longitude: quake.longitude,
+            magnitude: quake.mag,
+            place: quake.place,
+            depth: quake.depth_km,
+            url: quake.url,
+          });
+        } catch (error) {
+          console.error("❌ [ERROR] Failed to store earthquake in Convex:", error);
+        }
+      }
+      console.log("✅ [DEBUG] Successfully stored all earthquakes in Convex database");
+
       data.earthquakes.forEach((quake: any, index: number) => {
         console.log(`🔍 [DEBUG] Processing earthquake ${index}:`, {
           id: quake.id,
@@ -285,7 +311,7 @@ export function EarthquakeMap({
       console.log("🏁 [DEBUG] Earthquake fetch completed (finally block)");
       setIsLoading(false);
     }
-  }, [minMag, onEarthquakeSelection, hours, polyFilter]);
+  }, [minMag, onEarthquakeSelection, hours, polyFilter, upsertEarthquake]);
 
   // Store the latest fetchEarthquakes function in ref
   fetchEarthquakesRef.current = fetchEarthquakes;
