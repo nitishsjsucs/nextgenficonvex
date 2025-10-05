@@ -165,7 +165,7 @@ export function EarthquakeMap({
       quakeGroup.clearLayers();
 
       // Add new markers
-      data.forEach((quake: any) => {
+      data.earthquakes.forEach((quake: any) => {
         const color = quake.magnitude >= 5 ? "#ef4444" : quake.magnitude >= 4 ? "#f59e0b" : "#10b981";
         const radius = Math.max(4, quake.magnitude * 2);
 
@@ -190,8 +190,8 @@ export function EarthquakeMap({
           .addTo(quakeGroup);
       });
 
-      setEarthquakeData(data);
-      onEarthquakeSelection?.(data);
+      setEarthquakeData(data.earthquakes);
+      onEarthquakeSelection?.(data.earthquakes);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch earthquake data"
