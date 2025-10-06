@@ -115,7 +115,7 @@ function DashboardContent() {
         <div className="px-4 py-6 sm:px-0">
           {/* Welcome Section */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2 font-serif">
               Welcome back, {user?.name || "User"}! 👋
             </h2>
             <p className="text-gray-600">
@@ -127,7 +127,7 @@ function DashboardContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
+                <CardTitle className="text-sm font-medium font-serif">Active Campaigns</CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -139,7 +139,7 @@ function DashboardContent() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Emails Sent</CardTitle>
+                <CardTitle className="text-sm font-medium font-serif">Emails Sent</CardTitle>
                 <Send className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -151,7 +151,7 @@ function DashboardContent() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Open Rate</CardTitle>
+                <CardTitle className="text-sm font-medium font-serif">Open Rate</CardTitle>
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -166,23 +166,23 @@ function DashboardContent() {
           {/* Main Dashboard Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview" className="flex items-center space-x-2">
+              <TabsTrigger value="overview" className="flex items-center space-x-2 font-serif">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="platform" className="flex items-center space-x-2">
+              <TabsTrigger value="platform" className="flex items-center space-x-2 font-serif">
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">Platform</span>
               </TabsTrigger>
-              <TabsTrigger value="campaigns" className="flex items-center space-x-2">
+              <TabsTrigger value="campaigns" className="flex items-center space-x-2 font-serif">
                 <Target className="h-4 w-4" />
                 <span className="hidden sm:inline">Campaigns</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center space-x-2">
+              <TabsTrigger value="analytics" className="flex items-center space-x-2 font-serif">
                 <TrendingUp className="h-4 w-4" />
                 <span className="hidden sm:inline">Analytics</span>
               </TabsTrigger>
-              <TabsTrigger value="maps" className="flex items-center space-x-2">
+              <TabsTrigger value="maps" className="flex items-center space-x-2 font-serif">
                 <MapPin className="h-4 w-4" />
                 <span className="hidden sm:inline">Maps</span>
               </TabsTrigger>
