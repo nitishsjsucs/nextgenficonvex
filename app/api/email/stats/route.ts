@@ -93,6 +93,13 @@ export async function GET(request: NextRequest) {
       endDate: Date.now(),
     });
     
+    console.log('📊 [DEBUG] Date filtering details:', {
+      startDate: startDate.getTime(),
+      endDate: Date.now(),
+      startDateStr: startDate.toISOString(),
+      endDateStr: new Date().toISOString()
+    });
+    
     console.log('📊 [DEBUG] All email events from Convex:', {
       count: allEvents.length,
       events: allEvents.map(e => ({
