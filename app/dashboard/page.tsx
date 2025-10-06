@@ -17,7 +17,6 @@ import {
   TrendingUp, 
   Users, 
   Shield, 
-  Zap,
   Activity,
   Target,
   MapPin,
@@ -28,8 +27,6 @@ import {
 import { BankingPlatformDiagram } from "@/components/banking-platform-diagram";
 import EmailEngagementChart from "@/components/email-engagement-chart";
 import { InsuranceCampaigns } from "@/components/rag/insurance-campaigns";
-import { RAGSection } from "@/components/rag/rag-section";
-import { WeatherRAGSection } from "@/components/rag/weather-rag-section";
 import { EarthquakeMap } from "@/components/rag/earthquake-map";
 import { WeatherMap } from "@/components/rag/weather-map";
 
@@ -180,7 +177,7 @@ function DashboardContent() {
 
           {/* Main Dashboard Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview" className="flex items-center space-x-2">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
@@ -200,10 +197,6 @@ function DashboardContent() {
               <TabsTrigger value="maps" className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
                 <span className="hidden sm:inline">Maps</span>
-              </TabsTrigger>
-              <TabsTrigger value="rag" className="flex items-center space-x-2">
-                <Zap className="h-4 w-4" />
-                <span className="hidden sm:inline">RAG AI</span>
               </TabsTrigger>
             </TabsList>
 
@@ -417,30 +410,6 @@ function DashboardContent() {
                       <WeatherMap />
                     </CardContent>
                   </Card>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            {/* RAG AI Tab */}
-            <TabsContent value="rag" className="space-y-6">
-              <Tabs defaultValue="earthquake-rag" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="earthquake-rag" className="flex items-center space-x-2">
-                    <Globe className="h-4 w-4" />
-                    <span>Earthquake RAG</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="weather-rag" className="flex items-center space-x-2">
-                    <CloudRain className="h-4 w-4" />
-                    <span>Weather RAG</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="earthquake-rag" className="mt-6">
-                  <RAGSection />
-                </TabsContent>
-
-                <TabsContent value="weather-rag" className="mt-6">
-                  <WeatherRAGSection />
                 </TabsContent>
               </Tabs>
             </TabsContent>
