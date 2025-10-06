@@ -79,7 +79,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         serif: ["var(--font-instrument-serif)", "serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        mono: ["ui-monospace", "SFMono-Regular", "monospace"],
       },
       keyframes: {
         "accordion-down": {
