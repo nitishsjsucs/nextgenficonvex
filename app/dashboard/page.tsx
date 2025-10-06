@@ -5,7 +5,7 @@ import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,11 +67,6 @@ export default function DashboardPage() {
 function DashboardContent() {
   const user = useQuery(api.auth.getCurrentUser);
   const router = useRouter();
-  
-  // Real data state
-  const [emailStats, setEmailStats] = useState<any>(null);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Check if user needs KYC verification
   useEffect(() => {
@@ -79,36 +74,6 @@ function DashboardContent() {
       router.replace('/kyc');
     }
   }, [user, router]);
-
-  // Fetch real data
-  useEffect(() => {
-    const fetchRealData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch email stats
-        const emailResponse = await fetch('/api/email/stats?days=7');
-        if (emailResponse.ok) {
-          const emailData = await emailResponse.json();
-          setEmailStats(emailData);
-        }
-        
-        // Fetch campaigns
-        const campaignsResponse = await fetch('/api/rag/campaigns?limit=10');
-        if (campaignsResponse.ok) {
-          const campaignsData = await campaignsResponse.json();
-          setCampaigns(campaignsData.campaigns || []);
-        }
-        
-      } catch (error) {
-        console.error('Error fetching real data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRealData();
-  }, []);
 
   // Show loading while checking KYC status
   if (user && !user.kycVerified) {
@@ -166,11 +131,9 @@ function DashboardContent() {
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {loading ? "..." : campaigns.length}
-                </div>
+                <div className="text-2xl font-bold">12</div>
                 <p className="text-xs text-muted-foreground">
-                  {loading ? "Loading..." : `${campaigns.length} total campaigns`}
+                  +2 from last week
                 </p>
               </CardContent>
             </Card>
@@ -180,11 +143,9 @@ function DashboardContent() {
                 <Send className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {loading ? "..." : emailStats?.eventTypes?.delivered || 0}
-                </div>
+                <div className="text-2xl font-bold">2,847</div>
                 <p className="text-xs text-muted-foreground">
-                  {loading ? "Loading..." : `${emailStats?.eventTypes?.processed || 0} processed`}
+                  +15% from last month
                 </p>
               </CardContent>
             </Card>
@@ -194,13 +155,9 @@ function DashboardContent() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {loading ? "..." : emailStats?.eventTypes?.delivered > 0 
-                    ? ((emailStats?.eventTypes?.open / emailStats?.eventTypes?.delivered) * 100).toFixed(1) + "%"
-                    : "0%"}
-                </div>
+                <div className="text-2xl font-bold">24.3%</div>
                 <p className="text-xs text-muted-foreground">
-                  {loading ? "Loading..." : `${emailStats?.eventTypes?.open || 0} opens`}
+                  +3.2% from last month
                 </p>
               </CardContent>
             </Card>
@@ -359,29 +316,36 @@ function DashboardContent() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {loading ? (
-                        <div className="text-center py-4">
-                          <p className="text-muted-foreground">Loading campaign data...</p>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">Earthquake Insurance</p>
+                          <p className="text-sm text-gray-600">Last 7 days</p>
                         </div>
-                      ) : emailStats?.campaigns && emailStats.campaigns.length > 0 ? (
-                        emailStats.campaigns.slice(0, 3).map((campaign: any, index: number) => (
-                          <div key={campaign.campaignId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div>
-                              <p className="font-medium">{campaign.emailType.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</p>
-                              <p className="text-sm text-gray-600">Campaign ID: {campaign.campaignId.substring(0, 8)}...</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-green-600">{campaign.openRate.toFixed(1)}%</p>
-                              <p className="text-xs text-gray-500">Open Rate</p>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-4">
-                          <p className="text-muted-foreground">No campaign data available</p>
-                          <p className="text-sm text-muted-foreground">Send some email campaigns to see performance metrics</p>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">24.3%</p>
+                          <p className="text-xs text-gray-500">Open Rate</p>
                         </div>
-                      )}
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">Weather Insurance</p>
+                          <p className="text-sm text-gray-600">Last 7 days</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-blue-600">18.7%</p>
+                          <p className="text-xs text-gray-500">Open Rate</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">General Marketing</p>
+                          <p className="text-sm text-gray-600">Last 7 days</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-purple-600">31.2%</p>
+                          <p className="text-xs text-gray-500">Open Rate</p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
