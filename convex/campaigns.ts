@@ -157,15 +157,15 @@ export const getEmailStats = query({
       console.log('📊 [DEBUG] Filtered events count:', filteredEvents.length);
     }
     
-    // Aggregate stats
+    // Aggregate stats with proper SendGrid event type mapping
     const stats = {
       total: filteredEvents.length,
-      sent: filteredEvents.filter(e => e.eventType === 'sent').length,
+      sent: filteredEvents.filter(e => e.eventType === 'sent' || e.eventType === 'processed').length,
       delivered: filteredEvents.filter(e => e.eventType === 'delivered').length,
-      opened: filteredEvents.filter(e => e.eventType === 'opened').length,
-      clicked: filteredEvents.filter(e => e.eventType === 'clicked').length,
-      bounced: filteredEvents.filter(e => e.eventType === 'bounced').length,
-      unsubscribed: filteredEvents.filter(e => e.eventType === 'unsubscribed').length,
+      opened: filteredEvents.filter(e => e.eventType === 'opened' || e.eventType === 'open').length,
+      clicked: filteredEvents.filter(e => e.eventType === 'clicked' || e.eventType === 'click').length,
+      bounced: filteredEvents.filter(e => e.eventType === 'bounced' || e.eventType === 'bounce').length,
+      unsubscribed: filteredEvents.filter(e => e.eventType === 'unsubscribed' || e.eventType === 'unsubscribe').length,
     };
     
     console.log('📊 [DEBUG] Calculated stats:', stats);

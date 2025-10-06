@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     // Calculate summary stats
     const uniqueEmails = new Set(allEvents.map(e => e.personId)).size;
     
-    // Use stats from Convex
+    // Use stats from Convex with proper event type mapping
     const eventTypes = {
       processed: stats.sent || 0,
       delivered: stats.delivered || 0,
@@ -217,14 +217,15 @@ async function getCampaignStats(events: ConvexEmailEvent[], days: number) {
       return acc;
     }, {});
 
-    const emailType = 'earthquake-insurance'; // Default type
+            const emailType = 'earthquake-insurance'; // Default type
 
-    const processed = eventTypes.sent || 0;
-    const delivered = eventTypes.delivered || 0;
-    const opened = eventTypes.opened || 0;
-    const clicked = eventTypes.clicked || 0;
-    const bounced = eventTypes.bounced || 0;
-    const dropped = eventTypes.dropped || 0;
+            // Map SendGrid event types to our analytics format
+            const processed = (eventTypes.sent || 0) + (eventTypes.processed || 0);
+            const delivered = eventTypes.delivered || 0;
+            const opened = (eventTypes.opened || 0) + (eventTypes.open || 0);
+            const clicked = (eventTypes.clicked || 0) + (eventTypes.click || 0);
+            const bounced = (eventTypes.bounced || 0) + (eventTypes.bounce || 0);
+            const dropped = eventTypes.dropped || 0;
 
     campaigns.push({
       campaignId,
@@ -262,15 +263,15 @@ async function getDailyStats(events: ConvexEmailEvent[], days: number) {
       return acc;
     }, {});
 
-    dailyStats.push({
-      date: dateStr,
-      processed: eventTypes.sent || 0,
-      delivered: eventTypes.delivered || 0,
-      opened: eventTypes.opened || 0,
-      clicked: eventTypes.clicked || 0,
-      bounced: eventTypes.bounced || 0,
-      dropped: eventTypes.dropped || 0,
-    });
+            dailyStats.push({
+              date: dateStr,
+              processed: (eventTypes.sent || 0) + (eventTypes.processed || 0),
+              delivered: eventTypes.delivered || 0,
+              opened: (eventTypes.opened || 0) + (eventTypes.open || 0),
+              clicked: (eventTypes.clicked || 0) + (eventTypes.click || 0),
+              bounced: (eventTypes.bounced || 0) + (eventTypes.bounce || 0),
+              dropped: eventTypes.dropped || 0,
+            });
   }
 
   return dailyStats;
