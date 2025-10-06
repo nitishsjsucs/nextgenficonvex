@@ -51,13 +51,27 @@ export const createEmailEvent = mutation({
     metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("emailEvents", {
+    console.log('💾 [DEBUG] ===== CONVEX CREATE EMAIL EVENT =====');
+    console.log('💾 [DEBUG] Args:', {
+      campaignId: args.campaignId,
+      personId: args.personId,
+      eventType: args.eventType,
+      timestamp: args.timestamp,
+      metadata: args.metadata
+    });
+    
+    const result = await ctx.db.insert("emailEvents", {
       campaignId: args.campaignId,
       personId: args.personId,
       eventType: args.eventType,
       timestamp: args.timestamp,
       metadata: args.metadata,
     });
+    
+    console.log('💾 [DEBUG] Email event created with ID:', result);
+    console.log('💾 [DEBUG] ===== CONVEX CREATE EMAIL EVENT COMPLETED =====');
+    
+    return result;
   },
 });
 
@@ -100,25 +114,47 @@ export const getEmailStats = query({
     endDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    console.log('📊 [DEBUG] ===== CONVEX GET EMAIL STATS =====');
+    console.log('📊 [DEBUG] Args:', {
+      campaignId: args.campaignId,
+      startDate: args.startDate,
+      endDate: args.endDate,
+      startDateStr: args.startDate ? new Date(args.startDate).toISOString() : null,
+      endDateStr: args.endDate ? new Date(args.endDate).toISOString() : null
+    });
+    
     let events;
     
     if (args.campaignId) {
+      console.log('📊 [DEBUG] Filtering by campaign ID:', args.campaignId);
       events = await ctx.db
         .query("emailEvents")
         .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId!))
         .collect();
     } else {
+      console.log('📊 [DEBUG] Getting all email events');
       events = await ctx.db.query("emailEvents").collect();
     }
+    
+    console.log('📊 [DEBUG] Raw events count:', events.length);
+    console.log('📊 [DEBUG] Raw events sample:', events.slice(0, 3).map(e => ({
+      id: e._id,
+      campaignId: e.campaignId,
+      personId: e.personId,
+      eventType: e.eventType,
+      timestamp: new Date(e.timestamp).toISOString()
+    })));
     
     // Filter by date range if provided
     let filteredEvents = events;
     if (args.startDate || args.endDate) {
+      console.log('📊 [DEBUG] Filtering by date range...');
       filteredEvents = events.filter(event => {
         if (args.startDate && event.timestamp < args.startDate) return false;
         if (args.endDate && event.timestamp > args.endDate) return false;
         return true;
       });
+      console.log('📊 [DEBUG] Filtered events count:', filteredEvents.length);
     }
     
     // Aggregate stats
@@ -131,6 +167,9 @@ export const getEmailStats = query({
       bounced: filteredEvents.filter(e => e.eventType === 'bounced').length,
       unsubscribed: filteredEvents.filter(e => e.eventType === 'unsubscribed').length,
     };
+    
+    console.log('📊 [DEBUG] Calculated stats:', stats);
+    console.log('📊 [DEBUG] ===== CONVEX GET EMAIL STATS COMPLETED =====');
     
     return stats;
   },

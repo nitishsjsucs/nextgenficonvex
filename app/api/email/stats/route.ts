@@ -48,27 +48,61 @@ export interface EmailStatsResponse {
 }
 
 export async function GET(request: NextRequest) {
+  console.log('📊 [DEBUG] ===== EMAIL STATS API CALLED =====');
+  console.log('📊 [DEBUG] Timestamp:', new Date().toISOString());
+  console.log('📊 [DEBUG] Request URL:', request.url);
+  console.log('📊 [DEBUG] Request headers:', Object.fromEntries(request.headers.entries()));
+  
   try {
     const url = new URL(request.url);
     const days = parseInt(url.searchParams.get('days') || '30');
     const campaignId = url.searchParams.get('campaignId');
     
+    console.log('📊 [DEBUG] Query parameters:', {
+      days,
+      campaignId,
+      daysParam: url.searchParams.get('days'),
+      campaignIdParam: url.searchParams.get('campaignId')
+    });
+    
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
     
-    console.log(`📊 Fetching email stats for last ${days} days${campaignId ? ` (Campaign: ${campaignId})` : ''}`);
+    console.log(`📊 [DEBUG] Date range:`, {
+      startDate: startDate.toISOString(),
+      endDate: new Date().toISOString(),
+      days
+    });
+    
+    console.log(`📊 [DEBUG] Fetching email stats for last ${days} days${campaignId ? ` (Campaign: ${campaignId})` : ''}`);
 
     // Get email stats from Convex
+    console.log('📊 [DEBUG] Calling Convex getEmailStats query...');
     const stats = await convex.query(api.campaigns.getEmailStats, {
       campaignId: campaignId || undefined,
       startDate: startDate.getTime(),
       endDate: Date.now(),
     });
+    
+    console.log('📊 [DEBUG] Email stats from Convex:', stats);
 
     // Get all email events for detailed analysis
+    console.log('📊 [DEBUG] Calling Convex getAllEmailEvents query...');
     const allEvents = await convex.query(api.campaigns.getAllEmailEvents, {
       startDate: startDate.getTime(),
       endDate: Date.now(),
+    });
+    
+    console.log('📊 [DEBUG] All email events from Convex:', {
+      count: allEvents.length,
+      events: allEvents.map(e => ({
+        id: e._id,
+        campaignId: e.campaignId,
+        personId: e.personId,
+        eventType: e.eventType,
+        timestamp: new Date(e.timestamp).toISOString(),
+        metadata: e.metadata
+      }))
     });
 
     // If no real email events exist, return empty stats

@@ -46,25 +46,62 @@ const VALID_EVENTS = [
 ];
 
 export async function POST(request: NextRequest) {
+  console.log('🔗 [DEBUG] ===== SENDGRID WEBHOOK CALLED =====');
+  console.log('🔗 [DEBUG] Timestamp:', new Date().toISOString());
+  console.log('🔗 [DEBUG] Request headers:', Object.fromEntries(request.headers.entries()));
+  console.log('🔗 [DEBUG] Request URL:', request.url);
+  console.log('🔗 [DEBUG] Request method:', request.method);
+  
   try {
-    const events: SendGridEvent[] = await request.json();
+    const rawBody = await request.text();
+    console.log('🔗 [DEBUG] Raw request body length:', rawBody.length);
+    console.log('🔗 [DEBUG] Raw request body preview:', rawBody.substring(0, 200) + '...');
+    
+    const events: SendGridEvent[] = JSON.parse(rawBody);
+    console.log('🔗 [DEBUG] Parsed events count:', events.length);
+    console.log('🔗 [DEBUG] Events type:', Array.isArray(events) ? 'array' : typeof events);
 
     if (!Array.isArray(events)) {
+      console.log('❌ [ERROR] Expected array of events, got:', typeof events);
       return NextResponse.json(
         { error: 'Expected array of events' },
         { status: 400 }
       );
     }
 
-    console.log(`📧 Received ${events.length} SendGrid webhook events`);
+    console.log(`📧 [DEBUG] Received ${events.length} SendGrid webhook events`);
+    
+    // Log first event details for debugging
+    if (events.length > 0) {
+      console.log('📧 [DEBUG] First event sample:', {
+        email: events[0].email,
+        event: events[0].event,
+        timestamp: events[0].timestamp,
+        sg_message_id: events[0].sg_message_id,
+        unique_args: events[0].unique_args
+      });
+    }
 
     const processedEvents = [];
     const errors = [];
 
-    for (const event of events) {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
+      console.log(`📧 [DEBUG] Processing event ${i + 1}/${events.length}:`, {
+        email: event.email,
+        event: event.event,
+        timestamp: event.timestamp,
+        sg_message_id: event.sg_message_id
+      });
+      
       try {
         // Validate event
         if (!event.email || !event.event || !event.timestamp) {
+          console.log(`❌ [ERROR] Event ${i + 1} missing required fields:`, {
+            email: !!event.email,
+            event: !!event.event,
+            timestamp: !!event.timestamp
+          });
           errors.push({
             event,
             error: 'Missing required fields: email, event, or timestamp'
@@ -73,7 +110,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!VALID_EVENTS.includes(event.event)) {
-          console.log(`⚠️ Unknown event type: ${event.event}`);
+          console.log(`⚠️ [WARNING] Unknown event type: ${event.event}`);
           continue;
         }
 
@@ -83,8 +120,28 @@ export async function POST(request: NextRequest) {
         const userId = customArgs.userId;
         const emailType = customArgs.emailType || 'unknown';
 
+        console.log(`📧 [DEBUG] Event ${i + 1} custom args:`, {
+          campaignId,
+          userId,
+          emailType,
+          earthquakeId: customArgs.earthquakeId,
+          riskLevel: customArgs.riskLevel
+        });
+
         // Store email event in Convex
         const emailEventId = `email_event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        console.log(`📧 [DEBUG] Creating email event in Convex:`, {
+          campaignId: campaignId || 'unknown',
+          personId: userId || 'unknown',
+          eventType: event.event,
+          timestamp: event.timestamp * 1000,
+          metadata: {
+            email: event.email,
+            url: event.url,
+            sgMessageId: event.sg_message_id,
+          }
+        });
         
         const emailEvent = await convex.mutation(api.campaigns.createEmailEvent, {
           campaignId: campaignId || 'unknown',
@@ -98,6 +155,8 @@ export async function POST(request: NextRequest) {
           },
         });
 
+        console.log(`✅ [DEBUG] Email event created in Convex with ID: ${emailEvent}`);
+
         processedEvents.push({
           id: emailEvent,
           type: event.event,
@@ -107,10 +166,13 @@ export async function POST(request: NextRequest) {
           emailType: emailType
         });
 
-        console.log(`✅ Processed ${event.event} event for ${event.email} (Campaign: ${campaignId || 'N/A'})`);
+        console.log(`✅ [DEBUG] Processed ${event.event} event for ${event.email} (Campaign: ${campaignId || 'N/A'})`);
 
       } catch (error) {
-        console.error(`❌ Error processing event:`, error);
+        console.error(`❌ [ERROR] Error processing event ${i + 1}:`, error);
+        console.error(`❌ [ERROR] Error type:`, typeof error);
+        console.error(`❌ [ERROR] Error message:`, error instanceof Error ? error.message : 'No message');
+        console.error(`❌ [ERROR] Error stack:`, error instanceof Error ? error.stack : 'No stack');
         errors.push({
           event,
           error: error instanceof Error ? error.message : 'Unknown error'
@@ -124,23 +186,35 @@ export async function POST(request: NextRequest) {
       return acc;
     }, {} as Record<string, number>);
 
-    console.log('📊 Event Summary:', eventTypes);
-    console.log(`✅ Successfully processed ${processedEvents.length}/${events.length} events`);
+    console.log('📊 [DEBUG] Event Summary:', eventTypes);
+    console.log(`✅ [DEBUG] Successfully processed ${processedEvents.length}/${events.length} events`);
 
     if (errors.length > 0) {
-      console.log(`❌ ${errors.length} events failed to process`);
+      console.log(`❌ [DEBUG] ${errors.length} events failed to process`);
+      console.log(`❌ [DEBUG] Error details:`, errors);
     }
 
-    return NextResponse.json({
+    const response = {
       success: true,
       processed: processedEvents.length,
       failed: errors.length,
       eventTypes,
       errors: errors.length > 0 ? errors : undefined
-    });
+    };
+
+    console.log('🔗 [DEBUG] ===== SENDGRID WEBHOOK COMPLETED =====');
+    console.log('🔗 [DEBUG] Response:', response);
+
+    return NextResponse.json(response);
 
   } catch (error) {
-    console.error('💥 SendGrid webhook error:', error);
+    console.error('💥 [ERROR] ===== SENDGRID WEBHOOK ERROR =====');
+    console.error('💥 [ERROR] Error type:', typeof error);
+    console.error('💥 [ERROR] Error constructor:', error?.constructor?.name);
+    console.error('💥 [ERROR] Error message:', error instanceof Error ? error.message : 'No message');
+    console.error('💥 [ERROR] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('💥 [ERROR] Full error object:', error);
+    
     return NextResponse.json(
       { 
         error: 'Failed to process webhook events',
