@@ -58,25 +58,21 @@ export async function GET(request: NextRequest) {
     
     console.log(`📊 Fetching email stats for last ${days} days${campaignId ? ` (Campaign: ${campaignId})` : ''}`);
 
-    // Build where clause
-    const whereClause: any = {
-      timestamp: {
-        gte: startDate
-      }
-    };
-
-    if (campaignId) {
-      whereClause.campaignId = campaignId;
-    }
-
     // Get email stats from Convex
     const stats = await convex.query(api.campaigns.getEmailStats, {
+      campaignId: campaignId || undefined,
+      startDate: startDate.getTime(),
+      endDate: Date.now(),
+    });
+
+    // Get all email events for detailed analysis
+    const allEvents = await convex.query(api.campaigns.getAllEmailEvents, {
       startDate: startDate.getTime(),
       endDate: Date.now(),
     });
 
     // Calculate summary stats
-    const uniqueEmails = stats.total; // Use total as approximation
+    const uniqueEmails = new Set(allEvents.map(e => e.personId)).size;
     
     // Use stats from Convex
     const eventTypes = {
@@ -90,6 +86,12 @@ export async function GET(request: NextRequest) {
       unsubscribe: stats.unsubscribed || 0,
     };
 
+    // Generate campaign stats
+    const campaignStats = await getCampaignStats(allEvents, days);
+
+    // Generate daily stats
+    const dailyStats = await getDailyStats(allEvents, days);
+
     const response: EmailStatsResponse = {
       summary: {
         totalEvents: stats.total,
@@ -100,8 +102,8 @@ export async function GET(request: NextRequest) {
         }
       },
       eventTypes,
-      campaigns: [], // TODO: Implement campaign stats
-      dailyStats: [] // TODO: Implement daily stats
+      campaigns: campaignStats,
+      dailyStats
     };
 
     console.log(`✅ Email stats retrieved: ${stats.total} events, ${uniqueEmails} unique emails`);
@@ -116,17 +118,18 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-// Define the email event type
-type EmailEvent = {
-  email: string;
-  type: string;
-  campaignId?: string | null;
-  timestamp: Date;
+// Define the email event type for Convex
+type ConvexEmailEvent = {
+  campaignId: string;
+  personId: string;
+  eventType: string;
+  timestamp: number;
+  metadata?: any;
 };
 
-async function getCampaignStats(events: EmailEvent[], days: number) {
-  // Group events by campaign with proper typing
-  const campaignGroups = events.reduce<Record<string, EmailEvent[]>>((acc, event) => {
+async function getCampaignStats(events: ConvexEmailEvent[], days: number) {
+  // Group events by campaign
+  const campaignGroups = events.reduce<Record<string, ConvexEmailEvent[]>>((acc, event) => {
     const campaignId = event.campaignId || 'unknown';
     if (!acc[campaignId]) {
       acc[campaignId] = [];
@@ -138,20 +141,19 @@ async function getCampaignStats(events: EmailEvent[], days: number) {
   const campaigns = [];
 
   for (const [campaignId, campaignEvents] of Object.entries(campaignGroups)) {
-    const uniqueEmails = new Set(campaignEvents.map(e => e.email));
+    const uniqueEmails = new Set(campaignEvents.map(e => e.personId));
     const eventTypes = campaignEvents.reduce<Record<string, number>>((acc, event) => {
-      acc[event.type] = (acc[event.type] || 0) + 1;
+      acc[event.eventType] = (acc[event.eventType] || 0) + 1;
       return acc;
     }, {});
 
-    // Determine email type from campaign events (default to unknown since emailType is not in our type)
-    const emailType = 'unknown';
+    const emailType = 'earthquake-insurance'; // Default type
 
-    const processed = eventTypes.processed || 0;
+    const processed = eventTypes.sent || 0;
     const delivered = eventTypes.delivered || 0;
-    const opened = eventTypes.open || 0;
-    const clicked = eventTypes.click || 0;
-    const bounced = eventTypes.bounce || 0;
+    const opened = eventTypes.opened || 0;
+    const clicked = eventTypes.clicked || 0;
+    const bounced = eventTypes.bounced || 0;
     const dropped = eventTypes.dropped || 0;
 
     campaigns.push({
@@ -163,8 +165,8 @@ async function getCampaignStats(events: EmailEvent[], days: number) {
       clicked,
       bounced,
       dropped,
-      openRate: processed > 0 ? (opened / processed * 100) : 0,
-      clickRate: processed > 0 ? (clicked / processed * 100) : 0,
+      openRate: delivered > 0 ? (opened / delivered * 100) : 0,
+      clickRate: delivered > 0 ? (clicked / delivered * 100) : 0,
       deliveryRate: processed > 0 ? (delivered / processed * 100) : 0,
     });
   }
@@ -172,7 +174,7 @@ async function getCampaignStats(events: EmailEvent[], days: number) {
   return campaigns.sort((a, b) => b.totalSent - a.totalSent);
 }
 
-async function getDailyStats(events: EmailEvent[], days: number) {
+async function getDailyStats(events: ConvexEmailEvent[], days: number) {
   const dailyStats = [];
   
   for (let i = days - 1; i >= 0; i--) {
@@ -181,22 +183,22 @@ async function getDailyStats(events: EmailEvent[], days: number) {
     const dateStr = date.toISOString().split('T')[0];
     
     const dayEvents = events.filter(event => {
-      const eventDate = event.timestamp.toISOString().split('T')[0];
+      const eventDate = new Date(event.timestamp).toISOString().split('T')[0];
       return eventDate === dateStr;
     });
 
     const eventTypes = dayEvents.reduce<Record<string, number>>((acc, event) => {
-      acc[event.type] = (acc[event.type] || 0) + 1;
+      acc[event.eventType] = (acc[event.eventType] || 0) + 1;
       return acc;
     }, {});
 
     dailyStats.push({
       date: dateStr,
-      processed: eventTypes.processed || 0,
+      processed: eventTypes.sent || 0,
       delivered: eventTypes.delivered || 0,
-      opened: eventTypes.open || 0,
-      clicked: eventTypes.click || 0,
-      bounced: eventTypes.bounce || 0,
+      opened: eventTypes.opened || 0,
+      clicked: eventTypes.clicked || 0,
+      bounced: eventTypes.bounced || 0,
       dropped: eventTypes.dropped || 0,
     });
   }

@@ -61,6 +61,29 @@ export const createEmailEvent = mutation({
   },
 });
 
+// Get all email events
+export const getAllEmailEvents = query({
+  args: {
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const events = await ctx.db.query("emailEvents").collect();
+    
+    // Filter by date range if provided
+    let filteredEvents = events;
+    if (args.startDate || args.endDate) {
+      filteredEvents = events.filter(event => {
+        if (args.startDate && event.timestamp < args.startDate) return false;
+        if (args.endDate && event.timestamp > args.endDate) return false;
+        return true;
+      });
+    }
+    
+    return filteredEvents;
+  },
+});
+
 // Get email stats
 export const getEmailStats = query({
   args: {
