@@ -213,7 +213,7 @@ export function WeatherMap({
       weatherGroup.clearLayers();
 
       // Add new markers
-      data.forEach((event: any) => {
+      data.weatherEvents.forEach((event: any) => {
         let color = "#10b981";
         let icon = "🌦️";
         
