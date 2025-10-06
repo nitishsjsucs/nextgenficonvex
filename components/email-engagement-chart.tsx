@@ -139,6 +139,38 @@ export default function EmailEngagementChart({
     );
   }
 
+  // Check if there are no email events
+  if (stats.summary.totalEvents === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Email Engagement Statistics</CardTitle>
+          <CardDescription>No email campaigns found for the selected period</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-96 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Email Data Yet</h3>
+              <p className="text-gray-500 mb-4">
+                Start sending email campaigns to see engagement analytics here.
+              </p>
+              <div className="text-sm text-gray-400">
+                <p>• Send earthquake insurance campaigns</p>
+                <p>• Send weather insurance campaigns</p>
+                <p>• Track opens, clicks, and bounces</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const { dailyStats = [], summary, eventTypes = {} } = stats;
 
   // Calculate rates with safe defaults

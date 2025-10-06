@@ -61,6 +61,14 @@ export const createEmailEvent = mutation({
   },
 });
 
+// Delete email event
+export const deleteEmailEvent = mutation({
+  args: { id: v.id("emailEvents") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
 // Get all email events
 export const getAllEmailEvents = query({
   args: {

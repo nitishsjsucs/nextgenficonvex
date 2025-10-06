@@ -71,6 +71,35 @@ export async function GET(request: NextRequest) {
       endDate: Date.now(),
     });
 
+    // If no real email events exist, return empty stats
+    if (allEvents.length === 0) {
+      const response: EmailStatsResponse = {
+        summary: {
+          totalEvents: 0,
+          uniqueEmails: 0,
+          dateRange: {
+            from: startDate.toISOString(),
+            to: new Date().toISOString()
+          }
+        },
+        eventTypes: {
+          processed: 0,
+          delivered: 0,
+          open: 0,
+          click: 0,
+          bounce: 0,
+          dropped: 0,
+          spam_report: 0,
+          unsubscribe: 0,
+        },
+        campaigns: [],
+        dailyStats: []
+      };
+
+      console.log(`📊 No email events found for the last ${days} days`);
+      return NextResponse.json(response);
+    }
+    
     // Calculate summary stats
     const uniqueEmails = new Set(allEvents.map(e => e.personId)).size;
     
